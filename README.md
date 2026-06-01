@@ -108,3 +108,4 @@ GitHub Actions (`.github/workflows/ci.yml`) 在 `push/master` 和 `PR` 上执行
 3. `npm run typecheck`
 4. `npm run test:schema`
 5. `npm run build`
+6. `npm run test:e2e`

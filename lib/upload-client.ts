@@ -1,3 +1,5 @@
+import { formatBytes, getUploadLimitForType } from "@/lib/upload-policy";
+
 export interface UploadedFile {
   imageUrl: string;
   thumbUrl: string;
@@ -39,11 +41,15 @@ export async function cleanupUploadedFiles(files: Pick<UploadedFile, "imageUrl" 
 export async function uploadImageToR2(file: File): Promise<UploadedFile> {
   const requestId = createRequestId();
   const isVideo = /\.(mp4|webm|mov|avi|mkv)$/i.test(file.name) || file.type.startsWith("video/");
+  const limit = getUploadLimitForType(file.type);
+  if (limit && file.size > limit) {
+    throw new Error(`文件过大，当前类型限制为 ${formatBytes(limit)}`);
+  }
 
   const presignedRes = await fetch("/api/upload/presigned", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ contentType: file.type, requestId }),
+    body: JSON.stringify({ contentType: file.type, fileSize: file.size, requestId }),
   });
   if (!presignedRes.ok) throw new Error(await readError(presignedRes, "获取上传地址失败"));
   const { uploadUrl, originalKey, imageUrl } = await presignedRes.json();

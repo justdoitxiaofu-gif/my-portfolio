@@ -1,6 +1,6 @@
-import { expect, request, test } from "@playwright/test";
+import { expect, test, type APIRequestContext, type Page, type Response } from "@playwright/test";
+import { ADMIN_SECRET, newAdminApi, toAdminBaseURL } from "./admin-api";
 
-const ADMIN_SECRET = "e2e-admin-secret";
 const WORK_IMAGE = "https://placehold.co/1400x1800.png";
 const WORK_THUMB = "https://placehold.co/700x900.webp";
 const GALLERY_IMAGES = [
@@ -13,11 +13,7 @@ let createdWorkId = "";
 let createdWorkTitle = "";
 
 async function loginAndCreateWork(baseURL: string) {
-  const api = await request.newContext({ baseURL });
-  const login = await api.post("/api/auth/login", {
-    data: { key: ADMIN_SECRET },
-  });
-  expect(login.status()).toBe(200);
+  const api = await newAdminApi(baseURL);
 
   createdWorkTitle = `e2e-${Date.now()}`;
   const created = await api.post("/api/works", {
@@ -51,6 +47,70 @@ async function loginAndCreateWork(baseURL: string) {
   return api;
 }
 
+async function createApiWork(
+  api: APIRequestContext,
+  title: string,
+  sortOrder: number,
+  options: {
+    cover?: { imageUrl: string; thumbUrl: string };
+    pinned?: boolean;
+  } = {}
+) {
+  const cover = options.cover ?? { imageUrl: WORK_IMAGE, thumbUrl: WORK_THUMB };
+  const created = await api.post("/api/works", {
+    data: {
+      title,
+      description: "e2e description",
+      tags: ["e2e"],
+      imageUrl: cover.imageUrl,
+      thumbUrl: cover.thumbUrl,
+      pinned: options.pinned ?? false,
+      sortOrder,
+      workDate: "2026-05",
+      imageSize: 1024,
+      sizeWeight: 1,
+    },
+  });
+  expect(created.status()).toBe(201);
+  const createdBody = await created.json();
+  return createdBody.id as string;
+}
+
+function workRow(page: Page, title: string) {
+  return page
+    .getByRole("heading", { name: title, exact: true })
+    .locator("xpath=ancestor::div[contains(concat(' ', normalize-space(@class), ' '), ' items-start ')][1]");
+}
+
+async function waitForWorkUpdates(page: Page, ids: string[], action: () => Promise<void>) {
+  const pending = new Set(ids);
+  const responses: Response[] = [];
+  const waitForResponses = new Promise<Response[]>((resolve, reject) => {
+    const timeout = setTimeout(() => {
+      page.off("response", onResponse);
+      reject(new Error(`Timed out waiting for work updates: ${[...pending].join(", ")}`));
+    }, 5000);
+
+    const onResponse = (response: Response) => {
+      if (response.request().method() !== "PUT") return;
+      const matchedId = ids.find((id) => response.url().endsWith(`/api/works/${id}`));
+      if (!matchedId) return;
+      responses.push(response);
+      pending.delete(matchedId);
+      if (pending.size === 0) {
+        clearTimeout(timeout);
+        page.off("response", onResponse);
+        resolve(responses);
+      }
+    };
+
+    page.on("response", onResponse);
+  });
+
+  await action();
+  return waitForResponses;
+}
+
 test.beforeAll(async ({ baseURL }) => {
   if (!baseURL) throw new Error("baseURL is required");
   const api = await loginAndCreateWork(baseURL);
@@ -59,8 +119,7 @@ test.beforeAll(async ({ baseURL }) => {
 
 test.afterAll(async ({ baseURL }) => {
   if (!baseURL || !createdWorkId) return;
-  const api = await request.newContext({ baseURL });
-  await api.post("/api/auth/login", { data: { key: ADMIN_SECRET } });
+  const api = await newAdminApi(baseURL);
   await api.delete(`/api/works/${createdWorkId}`);
   await api.dispose();
 });
@@ -103,8 +162,7 @@ test("详情页支持放大和拖拽大图", async ({ page, baseURL }) => {
 
 test("作品更新冲突会返回 409 CONFLICT", async ({ baseURL }) => {
   if (!baseURL) throw new Error("baseURL is required");
-  const api = await request.newContext({ baseURL });
-  await api.post("/api/auth/login", { data: { key: ADMIN_SECRET } });
+  const api = await newAdminApi(baseURL);
 
   const current = await api.get(`/api/works/${createdWorkId}`);
   expect(current.status()).toBe(200);
@@ -126,6 +184,145 @@ test("作品更新冲突会返回 409 CONFLICT", async ({ baseURL }) => {
   expect(staleBody.code).toBe("CONFLICT");
 
   await api.dispose();
+});
+
+test("图片列表同步不会覆盖已选择的封面", async ({ baseURL }) => {
+  if (!baseURL) throw new Error("baseURL is required");
+  const api = await newAdminApi(baseURL);
+
+  const selectedCover = GALLERY_IMAGES[1];
+  const workId = await createApiWork(api, `cover-e2e-${Date.now()}`, 100, { cover: selectedCover });
+
+  try {
+    const replaced = await api.put(`/api/works/${workId}/images`, {
+      data: GALLERY_IMAGES.map((image, index) => ({
+        imageUrl: image.imageUrl,
+        thumbUrl: image.thumbUrl,
+        imageSize: 1024 + index,
+        sortOrder: index,
+      })),
+    });
+    expect(replaced.status()).toBe(200);
+
+    const current = await api.get(`/api/works/${workId}`);
+    expect(current.status()).toBe(200);
+    const currentBody = await current.json();
+    expect(currentBody.image_url).toBe(selectedCover.imageUrl);
+    expect(currentBody.thumb_url).toBe(selectedCover.thumbUrl);
+  } finally {
+    await api.delete(`/api/works/${workId}`);
+    await api.dispose();
+  }
+});
+
+test("后台连续排序不会因为本地版本号过期而冲突", async ({ page, baseURL }) => {
+  if (!baseURL) throw new Error("baseURL is required");
+  const api = await newAdminApi(baseURL);
+
+  const titleA = `sort-a-e2e-${Date.now()}`;
+  const titleB = `sort-b-e2e-${Date.now()}`;
+  const baseSortOrder = Date.now();
+  const workAId = await createApiWork(api, titleA, baseSortOrder);
+  const workBId = await createApiWork(api, titleB, baseSortOrder - 1);
+
+  try {
+    const adminBaseURL = toAdminBaseURL(baseURL);
+    await page.goto(`${adminBaseURL}/admin?key=${ADMIN_SECRET}`);
+    await page.goto(`${adminBaseURL}/admin?tab=works`);
+    await expect(workRow(page, titleA)).toBeVisible();
+    await expect(workRow(page, titleB)).toBeVisible();
+    await page.waitForTimeout(1200);
+
+    const firstMoveResponses = await waitForWorkUpdates(page, [workAId, workBId], () =>
+      workRow(page, titleA).getByRole("button", { name: "下移排序" }).click()
+    );
+    expect(firstMoveResponses.map((response) => response.status()).sort()).toEqual([200, 200]);
+
+    const moveBackButton = workRow(page, titleB).getByRole("button", { name: "下移排序" });
+    await expect(moveBackButton).toBeEnabled();
+    const secondMoveResponses = await waitForWorkUpdates(page, [workAId, workBId], () => moveBackButton.click());
+    expect(secondMoveResponses.map((response) => response.status()).sort()).toEqual([200, 200]);
+
+    await expect(page.getByText("排序冲突，已刷新，请重试")).toHaveCount(0);
+  } finally {
+    await api.delete(`/api/works/${workAId}`);
+    await api.delete(`/api/works/${workBId}`);
+    await api.dispose();
+  }
+});
+
+test("作品编辑保存用单个接口同步基础信息和图片列表", async ({ baseURL }) => {
+  if (!baseURL) throw new Error("baseURL is required");
+  const api = await newAdminApi(baseURL);
+
+  const title = `atomic-save-e2e-${Date.now()}`;
+  const workId = await createApiWork(api, title, 300);
+  const selectedCover = GALLERY_IMAGES[2];
+
+  try {
+    const current = await api.get(`/api/works/${workId}`);
+    expect(current.status()).toBe(200);
+    const currentBody = await current.json();
+    const updatedTitle = `${title}-updated`;
+    await new Promise((resolve) => setTimeout(resolve, 1200));
+
+    const saved = await api.put(`/api/works/${workId}/save`, {
+      data: {
+        title: updatedTitle,
+        description: "updated description",
+        tags: ["atomic", "e2e"],
+        software: ["Blender"],
+        workDate: "2026-06",
+        imageUrl: selectedCover.imageUrl,
+        thumbUrl: selectedCover.thumbUrl,
+        imageSize: 2048,
+        sizeWeight: 1.4,
+        expectedUpdatedAt: currentBody.updated_at,
+        images: GALLERY_IMAGES.map((image, index) => ({
+          imageUrl: image.imageUrl,
+          thumbUrl: image.thumbUrl,
+          imageSize: 2048 + index,
+          sortOrder: index,
+        })),
+      },
+    });
+    expect(saved.status()).toBe(200);
+
+    const [updated, images] = await Promise.all([
+      api.get(`/api/works/${workId}`),
+      api.get(`/api/works/${workId}/images`),
+    ]);
+    expect(updated.status()).toBe(200);
+    expect(images.status()).toBe(200);
+
+    const updatedBody = await updated.json();
+    expect(updatedBody.title).toBe(updatedTitle);
+    expect(updatedBody.image_url).toBe(selectedCover.imageUrl);
+    expect(updatedBody.thumb_url).toBe(selectedCover.thumbUrl);
+
+    const imageBody = await images.json();
+    expect(imageBody.map((image: { image_url: string }) => image.image_url)).toEqual(GALLERY_IMAGES.map((image) => image.imageUrl));
+
+    const staleSave = await api.put(`/api/works/${workId}/save`, {
+      data: {
+        title: "stale update",
+        description: "stale",
+        tags: [],
+        software: [],
+        workDate: "",
+        imageUrl: GALLERY_IMAGES[0].imageUrl,
+        thumbUrl: GALLERY_IMAGES[0].thumbUrl,
+        imageSize: 1,
+        sizeWeight: 1,
+        expectedUpdatedAt: currentBody.updated_at,
+        images: [GALLERY_IMAGES[0]],
+      },
+    });
+    expect(staleSave.status()).toBe(409);
+  } finally {
+    await api.delete(`/api/works/${workId}`);
+    await api.dispose();
+  }
 });
 
 test.describe("手机端相册式滑动预览", () => {

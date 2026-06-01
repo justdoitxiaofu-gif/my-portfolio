@@ -8,6 +8,7 @@ import { r2, R2_BUCKET, publicUrl } from "@/lib/r2";
 import { reportApiError, reportMetric } from "@/lib/monitoring";
 import { getIdempotencyStore } from "@/lib/idempotency-store";
 import { fail, ok } from "@/lib/api-response";
+import { formatBytes, MAX_IMAGE_UPLOAD_BYTES } from "@/lib/upload-policy";
 
 export async function POST(req: NextRequest) {
   try {
@@ -38,6 +39,10 @@ export async function POST(req: NextRequest) {
     if (!getResponse.Body || !getResponse.ContentLength || getResponse.ContentLength === 0) {
       reportMetric({ scope: "upload.process.empty_original", value: 1, path: req.nextUrl.pathname, meta: { originalKey } });
       return fail("BAD_REQUEST", "Original file is empty or not found", 400);
+    }
+    if (getResponse.ContentLength > MAX_IMAGE_UPLOAD_BYTES) {
+      reportMetric({ scope: "upload.process.too_large", value: 1, path: req.nextUrl.pathname, meta: { originalKey, size: getResponse.ContentLength } });
+      return fail("PAYLOAD_TOO_LARGE", `图片过大，限制为 ${formatBytes(MAX_IMAGE_UPLOAD_BYTES)}`, 413);
     }
     const chunks: Buffer[] = [];
     for await (const chunk of getResponse.Body as AsyncIterable<Uint8Array>) {

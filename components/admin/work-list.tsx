@@ -9,12 +9,14 @@ export default function WorkList({
   onTogglePin,
   onEdit,
   onReorder,
+  reordering = false,
 }: {
   works: Work[];
   onDelete: (work: Work) => void;
   onTogglePin: (work: Work) => void;
   onEdit: (id: string) => void;
   onReorder: (work: Work, direction: "up" | "down") => void;
+  reordering?: boolean;
 }) {
   const totalWeight = works.reduce((sum, work) => sum + (work.size_weight ?? 1), 0);
 
@@ -81,7 +83,7 @@ export default function WorkList({
                 <div className="inline-flex border border-border/80">
                   <button
                     onClick={() => onReorder(work, "up")}
-                    disabled={!canMoveUp}
+                    disabled={reordering || !canMoveUp}
                     title={i > 0 && !canMoveUp ? "置顶作品和普通作品分开排序" : undefined}
                     className="min-h-10 min-w-10 text-xs text-text-muted hover:text-accent disabled:opacity-30"
                     aria-label="上移排序"
@@ -90,7 +92,7 @@ export default function WorkList({
                   </button>
                   <button
                     onClick={() => onReorder(work, "down")}
-                    disabled={!canMoveDown}
+                    disabled={reordering || !canMoveDown}
                     title={i < works.length - 1 && !canMoveDown ? "置顶作品和普通作品分开排序" : undefined}
                     className="min-h-10 min-w-10 border-l border-border/80 text-xs text-text-muted hover:text-accent disabled:opacity-30"
                     aria-label="下移排序"

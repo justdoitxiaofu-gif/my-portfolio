@@ -6,8 +6,14 @@ import db from "@/lib/db";
 import { requireSameOrigin } from "@/lib/api-security";
 import { requireAuth } from "@/lib/auth";
 import { writeAuditLog } from "@/lib/audit-log";
-import { ok } from "@/lib/api-response";
+import { fail, ok } from "@/lib/api-response";
 import { enqueueR2Delete, processR2DeleteJobs } from "@/lib/r2-delete-jobs";
+import {
+  chooseCoverImage,
+  collectRemovedImageUrls,
+  replaceWorkImagesInTransaction,
+  type PreparedWorkImage,
+} from "@/lib/work-images-replace";
 
 const addImageSchema = z.object({
   imageUrl: z.string().url(),
@@ -154,7 +160,7 @@ export async function PUT(
   const body = await req.json();
   const items = Array.isArray(body) ? body : [];
 
-  const valid: { id: string; imageUrl: string; thumbUrl: string; mediaType: string; imageSize: number; sortOrder: number }[] = [];
+  const valid: PreparedWorkImage[] = [];
   for (const [i, item] of items.entries()) {
     const parsed = addImageSchema.safeParse(item);
     if (!parsed.success) continue;
@@ -168,37 +174,42 @@ export async function PUT(
     });
   }
 
-  const existing = await db.execute({
-    sql: "SELECT image_url, thumb_url FROM work_images WHERE work_id = ?",
-    args: [workId],
-  });
+  const transaction = await db.transaction("write");
+  let removedUrls: string[] = [];
+  let previousCount = 0;
 
-  const newUrls = new Set(valid.flatMap((it) => [it.imageUrl, it.thumbUrl]));
-  const removedUrls: string[] = [];
-  for (const row of existing.rows) {
-    const imageUrl = row.image_url as string;
-    const thumbUrl = row.thumb_url as string;
-    if (imageUrl && !newUrls.has(imageUrl)) removedUrls.push(imageUrl);
-    if (thumbUrl && !newUrls.has(thumbUrl)) removedUrls.push(thumbUrl);
-  }
-
-  await db.execute({ sql: "DELETE FROM work_images WHERE work_id = ?", args: [workId] });
-  if (valid.length > 0) {
-    await db.batch(
-      valid.map((it) => ({
-        sql: `INSERT INTO work_images (id, work_id, image_url, thumb_url, media_type, sort_order, image_size)
-              VALUES (?, ?, ?, ?, ?, ?, ?)`,
-        args: [it.id, workId, it.imageUrl, it.thumbUrl, it.mediaType, it.sortOrder, it.imageSize],
-      }))
-    );
-  }
-
-  if (valid.length > 0) {
-    const cover = valid.sort((a, b) => a.sortOrder - b.sortOrder)[0];
-    await db.execute({
-      sql: "UPDATE works SET image_url = ?, thumb_url = ?, updated_at = datetime('now') WHERE id = ?",
-      args: [cover.imageUrl, cover.thumbUrl, workId],
+  try {
+    const existing = await transaction.execute({
+      sql: "SELECT image_url, thumb_url FROM work_images WHERE work_id = ?",
+      args: [workId],
     });
+    const currentWork = await transaction.execute({
+      sql: "SELECT image_url, thumb_url FROM works WHERE id = ?",
+      args: [workId],
+    });
+    if (currentWork.rows.length === 0) {
+      await transaction.rollback();
+      return fail("NOT_FOUND", "Work not found", 404);
+    }
+
+    previousCount = existing.rows.length;
+    removedUrls = collectRemovedImageUrls(existing.rows as Array<Record<string, unknown>>, valid);
+    await replaceWorkImagesInTransaction(transaction, workId, valid);
+
+    if (valid.length > 0) {
+      const cover = chooseCoverImage(valid, currentWork.rows[0] as Record<string, unknown>);
+      await transaction.execute({
+        sql: "UPDATE works SET image_url = ?, thumb_url = ?, updated_at = datetime('now') WHERE id = ?",
+        args: [cover.imageUrl, cover.thumbUrl, workId],
+      });
+    }
+
+    await transaction.commit();
+  } catch (error) {
+    if (!transaction.closed) await transaction.rollback();
+    throw error;
+  } finally {
+    if (!transaction.closed) transaction.close();
   }
 
   if (removedUrls.length > 0) {
@@ -207,7 +218,7 @@ export async function PUT(
 
   await writeAuditLog(req, "work.images.replace", {
     workId,
-    previousCount: existing.rows.length,
+    previousCount,
     nextCount: valid.length,
     removedFiles: removedUrls.length,
   });

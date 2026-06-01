@@ -1,8 +1,8 @@
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
 import { expect, test } from "@playwright/test";
+import { newAdminApi } from "./admin-api";
 
-const ADMIN_SECRET = "e2e-admin-secret";
 const TEST_IMAGE_URL = "https://placehold.co/theme-toggle-thumb.png";
 const TINY_PNG = Buffer.from(
   "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+/p9sAAAAASUVORK5CYII=",
@@ -24,14 +24,16 @@ test.describe("theme toggle", () => {
     expect(await page.locator("[data-theme-toggle]:visible").getAttribute("aria-pressed")).toBe("true");
   });
 
-  test("主题样式避免旧浏览器不稳定的二级颜色变量", () => {
+  test("主题样式保留 Tailwind v4 映射并避免 slash opacity 写法", () => {
     const css = readFileSync(join(process.cwd(), "app", "globals.css"), "utf8");
 
-    expect(css).not.toMatch(/--color-(bg|surface|border|text|text-muted|accent|accent-dim):\s*var\(--theme-/);
+    expect(css).toContain("--color-bg: var(--theme-bg);");
+    expect(css).toContain("--color-accent: var(--theme-accent);");
     expect(css).not.toContain("rgb(var(--atmosphere) /");
   });
 
-  test("切换主题后作品缩略图保持加载状态", async ({ page, request, baseURL }) => {
+  test("切换主题后作品缩略图保持加载状态", async ({ page, baseURL }) => {
+    if (!baseURL) throw new Error("baseURL is required");
     await page.route("https://placehold.co/**", async (route) => {
       await route.fulfill({
         status: 200,
@@ -40,13 +42,13 @@ test.describe("theme toggle", () => {
       });
     });
 
-    await request.post("/api/auth/login", { data: { key: ADMIN_SECRET } });
+    const api = await newAdminApi(baseURL);
 
     const title = `theme-toggle-image-${Date.now()}`;
     let workId = "";
 
     try {
-      const created = await request.post("/api/works", {
+      const created = await api.post("/api/works", {
         data: {
           title,
           description: "theme toggle image test",
@@ -72,7 +74,8 @@ test.describe("theme toggle", () => {
       await expect.poll(() => thumb.evaluate((image) => (image as HTMLImageElement).naturalWidth)).toBeGreaterThan(0);
       await expect(thumb).toHaveClass(/work-thumb-ready/);
     } finally {
-      if (workId) await request.delete(`/api/works/${workId}`);
+      if (workId) await api.delete(`/api/works/${workId}`);
+      await api.dispose();
     }
   });
 

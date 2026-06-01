@@ -47,8 +47,10 @@ export default function AdminPageClient() {
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState<{ text: string; ok: boolean } | null>(null);
   const [pendingDelete, setPendingDelete] = useState<Work | null>(null);
+  const [reordering, setReordering] = useState(false);
   const router = useRouter();
   const messageTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const reorderingRef = useRef(false);
 
   const showMsg = useCallback((text: string, ok: boolean) => {
     if (messageTimerRef.current) {
@@ -113,6 +115,8 @@ export default function AdminPageClient() {
   };
 
   const moveWork = async (work: Work, direction: "up" | "down") => {
+    if (reorderingRef.current) return;
+
     const index = works.findIndex((item) => item.id === work.id);
     const swapIndex = direction === "up" ? index - 1 : index + 1;
     if (index < 0 || swapIndex < 0 || swapIndex >= works.length) return;
@@ -130,22 +134,49 @@ export default function AdminPageClient() {
     updatedWorks[swapIndex] = { ...work, sort_order: nextWorkSortOrder };
     setWorks(updatedWorks);
 
-    const [updatedWorkRes, updatedOtherRes] = await Promise.all([
-      fetch(`/api/works/${work.id}`, {
-        method: "PUT",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ sortOrder: nextWorkSortOrder, expectedUpdatedAt: getWorkUpdatedAt(work) }),
-      }),
-      fetch(`/api/works/${other.id}`, {
-        method: "PUT",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ sortOrder: nextOtherSortOrder, expectedUpdatedAt: getWorkUpdatedAt(other) }),
-      }),
-    ]);
+    reorderingRef.current = true;
+    setReordering(true);
 
-    if (!updatedWorkRes.ok || !updatedOtherRes.ok) {
+    try {
+      const [updatedWorkRes, updatedOtherRes] = await Promise.all([
+        fetch(`/api/works/${work.id}`, {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ sortOrder: nextWorkSortOrder, expectedUpdatedAt: getWorkUpdatedAt(work) }),
+        }),
+        fetch(`/api/works/${other.id}`, {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ sortOrder: nextOtherSortOrder, expectedUpdatedAt: getWorkUpdatedAt(other) }),
+        }),
+      ]);
+
+      if (!updatedWorkRes.ok || !updatedOtherRes.ok) {
+        refresh();
+        showMsg("排序冲突，已刷新，请重试", false);
+        return;
+      }
+
+      const [updatedWorkBody, updatedOtherBody] = await Promise.all([
+        updatedWorkRes.json().catch(() => null) as Promise<{ updatedAt?: string } | null>,
+        updatedOtherRes.json().catch(() => null) as Promise<{ updatedAt?: string } | null>,
+      ]);
+      const updatedWorkAt = updatedWorkBody?.updatedAt;
+      const updatedOtherAt = updatedOtherBody?.updatedAt;
+
+      setWorks((current) =>
+        current.map((item) => {
+          if (item.id === work.id && updatedWorkAt) return { ...item, updated_at: updatedWorkAt };
+          if (item.id === other.id && updatedOtherAt) return { ...item, updated_at: updatedOtherAt };
+          return item;
+        })
+      );
+    } catch {
       refresh();
-      showMsg("排序冲突，已刷新，请重试", false);
+      showMsg("排序失败，已刷新，请重试", false);
+    } finally {
+      reorderingRef.current = false;
+      setReordering(false);
     }
   };
 
@@ -248,6 +279,7 @@ export default function AdminPageClient() {
               setTab("edit");
             }}
             onReorder={moveWork}
+            reordering={reordering}
           />
         </div>
       )}

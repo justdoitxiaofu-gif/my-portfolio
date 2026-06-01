@@ -8,10 +8,10 @@ import type { Section, Work } from "@/lib/types";
 import BgCanvas from "@/components/particle-bg";
 import AuroraCanvas from "@/components/aurora-canvas";
 import ThemeToggle from "@/components/theme-toggle";
+import { useActiveHomeSection, useBackToTopVisibility, useCustomCursor, useHomeDataRefresh } from "@/components/home-hooks";
 
 const spring = { type: "spring" as const, damping: 28, stiffness: 200, mass: 0.8 };
 const DEFAULT_TAGLINE = "Hard Surface / Stylized Character / Game Art";
-const VISIBLE_REFRESH_MIN_INTERVAL = 30000;
 
 function sanitizeHtml(html: string): string {
   return html
@@ -123,155 +123,34 @@ export default function HomeClient({
   initialSections: Section[];
   initialLoadError: boolean;
 }) {
-  const [intro, setIntro] = useState(initialIntro);
-  const [tagline, setTagline] = useState(initialTagline || DEFAULT_TAGLINE);
-  const [detailSections, setDetailSections] = useState<Section[]>(initialSections);
-  const [loadError, setLoadError] = useState(initialLoadError);
-  const [loadingWorks, setLoadingWorks] = useState(initialWorks.length === 0 && !initialLoadError);
-  const [expandedSection, setExpandedSection] = useState<string | null>(initialSections[0]?.id ?? null);
-  const [works, setWorks] = useState<Work[]>(initialWorks);
+  const {
+    intro,
+    tagline,
+    detailSections,
+    loadError,
+    loadingWorks,
+    expandedSection,
+    setExpandedSection,
+    works,
+    refreshData,
+  } = useHomeDataRefresh({
+    initialIntro,
+    initialTagline,
+    initialWorks,
+    initialSections,
+    initialLoadError,
+    defaultTagline: DEFAULT_TAGLINE,
+  });
   const [activeTag, setActiveTag] = useState<string | null>(null);
   const [sortMode, setSortMode] = useState<"default" | "newest" | "oldest">("default");
   const [mobileNavOpen, setMobileNavOpen] = useState(false);
-  const [activeSection, setActiveSection] = useState<"works" | "about" | "contact">("works");
-  const [showBackToTop, setShowBackToTop] = useState(false);
   const [thumbReady, setThumbReady] = useState<Record<string, true>>({});
   const cursorRef = useRef<HTMLDivElement>(null);
   const ringRef = useRef<HTMLDivElement>(null);
   const heroRef = useRef<HTMLDivElement>(null);
-  const refreshInFlightRef = useRef(false);
-  const lastRefreshAtRef = useRef(0);
-
-  const refreshData = useCallback(async (options?: { force?: boolean }) => {
-    const now = Date.now();
-    if (refreshInFlightRef.current) return;
-    if (!options?.force && now - lastRefreshAtRef.current < VISIBLE_REFRESH_MIN_INTERVAL) return;
-    refreshInFlightRef.current = true;
-
-    try {
-      const [introRes, sectionsRes, worksRes] = await Promise.all([fetch("/api/intro"), fetch("/api/detail-sections"), fetch("/api/works")]);
-      if (!introRes.ok || !sectionsRes.ok || !worksRes.ok) {
-        throw new Error("refresh failed");
-      }
-      const [introData, nextSections, nextWorks] = await Promise.all([
-        introRes.json() as Promise<{ content?: string; tagline?: string }>,
-        sectionsRes.json() as Promise<Section[]>,
-        worksRes.json() as Promise<Work[]>,
-      ]);
-      setIntro(introData.content || "");
-      setTagline((introData.tagline || "").trim() || DEFAULT_TAGLINE);
-      setDetailSections(nextSections);
-      setExpandedSection((current) => {
-        if (nextSections.length === 0) return null;
-        if (!current) return nextSections[0].id;
-        return nextSections.some((section) => section.id === current) ? current : nextSections[0].id;
-      });
-      setWorks(nextWorks);
-      setLoadError(false);
-    } catch {
-      setLoadError(true);
-    } finally {
-      lastRefreshAtRef.current = Date.now();
-      refreshInFlightRef.current = false;
-      setLoadingWorks(false);
-    }
-  }, []);
-
-  useEffect(() => { const iv = setInterval(refreshData, 300000); return () => clearInterval(iv); }, [refreshData]);
-
-  useEffect(() => {
-    if (!initialLoadError) {
-      lastRefreshAtRef.current = Date.now();
-    }
-  }, [initialLoadError]);
-
-  useEffect(() => {
-    const onVisible = () => { if (document.visibilityState === "visible") refreshData(); };
-    document.addEventListener("visibilitychange", onVisible);
-    return () => document.removeEventListener("visibilitychange", onVisible);
-  }, [refreshData]);
-
-  // Enable vignette always; hide native cursor only for fine pointer devices.
-  useEffect(() => {
-    document.body.classList.add("home-vignette");
-    const finePointer = window.matchMedia("(pointer: fine)").matches;
-    const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-    if (finePointer && !reducedMotion) {
-      document.body.style.cursor = "none";
-    }
-    return () => {
-      document.body.style.cursor = "";
-      document.body.classList.remove("home-vignette");
-    };
-  }, []);
-
-  // Cursor — reference-inspired: CSS class toggle + lerp ring
-  useEffect(() => {
-    if (typeof window === "undefined") return;
-    const finePointer = window.matchMedia("(pointer: fine)").matches;
-    const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-    if (!finePointer || reducedMotion) return;
-    const cursor = cursorRef.current, ring = ringRef.current;
-    if (!cursor || !ring) return;
-    let mx = 0, my = 0, rx = 0, ry = 0;
-    let hasRingPosition = false;
-    const setCursorVisibility = (visible: boolean) => {
-      const opacity = visible ? "1" : "0";
-      cursor.style.opacity = opacity;
-      ring.style.opacity = opacity;
-    };
-    const syncRing = (x: number, y: number) => {
-      rx = x; ry = y;
-      ring.style.left = rx + "px";
-      ring.style.top = ry + "px";
-    };
-    let scrollHideTimer = 0 as unknown as ReturnType<typeof setTimeout>;
-    const onScroll = () => {
-      if (!hasRingPosition) return;
-      clearTimeout(scrollHideTimer);
-      setCursorVisibility(false);
-      scrollHideTimer = setTimeout(() => {
-        if (document.visibilityState === "visible") {
-          setCursorVisibility(true);
-        }
-      }, 150);
-    };
-    const onMove = (e: MouseEvent) => {
-      clearTimeout(scrollHideTimer);
-      mx = e.clientX; my = e.clientY;
-      cursor.style.left = mx + "px";
-      cursor.style.top = my + "px";
-      if (!hasRingPosition || Math.hypot(mx - rx, my - ry) > 180) {
-        hasRingPosition = true;
-        syncRing(mx, my);
-      }
-      setCursorVisibility(true);
-      const hovering = (e.target as HTMLElement).closest(".work-card, a, button, [data-hover]");
-      if (hovering) { cursor.classList.add("hover"); ring.classList.add("hover"); }
-      else { cursor.classList.remove("hover"); ring.classList.remove("hover"); }
-    };
-    setCursorVisibility(false);
-    const animate = () => {
-      if (!hasRingPosition) {
-        raf = requestAnimationFrame(animate);
-        return;
-      }
-      rx += (mx - rx) * 0.15;
-      ry += (my - ry) * 0.15;
-      ring.style.left = rx + "px";
-      ring.style.top = ry + "px";
-      raf = requestAnimationFrame(animate);
-    };
-    let raf = requestAnimationFrame(animate);
-    window.addEventListener("mousemove", onMove, { passive: true });
-    window.addEventListener("scroll", onScroll, { passive: true });
-    return () => {
-      window.removeEventListener("mousemove", onMove);
-      window.removeEventListener("scroll", onScroll);
-      cancelAnimationFrame(raf);
-      clearTimeout(scrollHideTimer);
-    };
-  }, []);
+  const activeSection = useActiveHomeSection(works.length, detailSections.length);
+  const showBackToTop = useBackToTopVisibility();
+  useCustomCursor(cursorRef, ringRef);
 
   useEffect(() => {
     if (!mobileNavOpen) return;
@@ -282,62 +161,6 @@ export default function HomeClient({
     return () => window.removeEventListener("keydown", onKeyDown);
   }, [mobileNavOpen]);
 
-  useEffect(() => {
-    const sections = ["works", "about", "contact"] as const;
-    let raf = 0;
-
-    const updateActiveSection = () => {
-      const scrollBottom = window.scrollY + window.innerHeight;
-      const docHeight = document.documentElement.scrollHeight;
-      const marker = window.scrollY + Math.max(180, window.innerHeight * 0.4);
-      let nextActive: "works" | "about" | "contact" = "works";
-
-      if (scrollBottom >= docHeight - 24) {
-        setActiveSection((current) => (current === "contact" ? current : "contact"));
-        raf = 0;
-        return;
-      }
-
-      for (const id of sections) {
-        const el = document.getElementById(id);
-        if (!el) continue;
-        if (el.getBoundingClientRect().top + window.scrollY <= marker) nextActive = id;
-      }
-
-      setActiveSection((current) => (current === nextActive ? current : nextActive));
-      raf = 0;
-    };
-
-    const onScroll = () => {
-      if (raf) return;
-      raf = window.requestAnimationFrame(updateActiveSection);
-    };
-
-    updateActiveSection();
-    window.addEventListener("scroll", onScroll, { passive: true });
-    window.addEventListener("resize", onScroll);
-
-    return () => {
-      if (raf) window.cancelAnimationFrame(raf);
-      window.removeEventListener("scroll", onScroll);
-      window.removeEventListener("resize", onScroll);
-    };
-  }, [works.length, detailSections.length]);
-
-  useEffect(() => {
-    const updateVisibility = () => {
-      setShowBackToTop(window.scrollY > Math.max(280, window.innerHeight * 0.55));
-    };
-    updateVisibility();
-    window.addEventListener("scroll", updateVisibility, { passive: true });
-    window.addEventListener("resize", updateVisibility);
-    return () => {
-      window.removeEventListener("scroll", updateVisibility);
-      window.removeEventListener("resize", updateVisibility);
-    };
-  }, []);
-
-  // Reveal
   useEffect(() => {
     const obs = new IntersectionObserver((entries) => entries.forEach((e) => { if (e.isIntersecting) e.target.classList.add("in"); }), { threshold: 0.15 });
     document.querySelectorAll(".reveal").forEach((el) => obs.observe(el));

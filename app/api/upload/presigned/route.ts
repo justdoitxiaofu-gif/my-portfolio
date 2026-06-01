@@ -8,6 +8,7 @@ import { r2, R2_BUCKET, publicUrl } from "@/lib/r2";
 import { reportApiError, reportMetric } from "@/lib/monitoring";
 import { getIdempotencyStore } from "@/lib/idempotency-store";
 import { fail, ok } from "@/lib/api-response";
+import { formatBytes, getUploadLimitForType } from "@/lib/upload-policy";
 
 const ALLOWED = new Set(["image/jpeg", "image/png", "image/webp", "image/avif", "video/mp4", "video/webm", "video/quicktime", "video/x-msvideo", "video/x-matroska"]);
 
@@ -33,17 +34,26 @@ export async function POST(req: NextRequest) {
 
     const body = await req.json();
     const contentType = body.contentType as string;
+    const fileSize = Number(body.fileSize);
     const requestId = typeof body.requestId === "string" ? body.requestId : "";
+    if (!ALLOWED.has(contentType)) {
+      reportMetric({ scope: "upload.presigned.invalid_type", value: 1, path: req.nextUrl.pathname, meta: { contentType } });
+      return fail("BAD_REQUEST", "Invalid image type", 400);
+    }
+    const limit = getUploadLimitForType(contentType);
+    if (!Number.isFinite(fileSize) || fileSize <= 0 || !limit) {
+      return fail("BAD_REQUEST", "Invalid file size", 400);
+    }
+    if (fileSize > limit) {
+      reportMetric({ scope: "upload.presigned.too_large", value: 1, path: req.nextUrl.pathname, meta: { contentType, fileSize, limit } });
+      return fail("PAYLOAD_TOO_LARGE", `文件过大，当前类型限制为 ${formatBytes(limit)}`, 413);
+    }
     const cacheKey = requestId ? `upload:presigned:${requestId}` : "";
     const cached = cacheKey
       ? getIdempotencyStore().get<{ uploadUrl: string; originalKey: string; imageUrl: string }>(cacheKey)
       : null;
     if (cached) {
       return ok(cached);
-    }
-    if (!ALLOWED.has(contentType)) {
-      reportMetric({ scope: "upload.presigned.invalid_type", value: 1, path: req.nextUrl.pathname, meta: { contentType } });
-      return fail("BAD_REQUEST", "Invalid image type", 400);
     }
     const ext = EXT_MAP[contentType] || "png";
     const id = createId();

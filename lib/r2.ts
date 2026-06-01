@@ -27,17 +27,26 @@ export async function deleteFromR2(urls: string[]): Promise<void> {
   const keys = urls.map(urlToKey).filter((k): k is string => !!k);
   if (keys.length === 0) return;
 
+  await deleteR2Keys(r2, R2_BUCKET, keys);
+}
+
+export async function deleteR2Keys(
+  client: { send(command: unknown): Promise<unknown> },
+  bucket: string,
+  keys: string[]
+): Promise<void> {
   for (let i = 0; i < keys.length; i += 1000) {
     const chunk = keys.slice(i, i + 1000);
-    try {
-      await r2.send(
-        new DeleteObjectsCommand({
-          Bucket: R2_BUCKET,
-          Delete: { Objects: chunk.map((Key) => ({ Key })) },
-        })
-      );
-    } catch (e) {
-      console.error("R2 delete failed:", e);
+    const result = await client.send(
+      new DeleteObjectsCommand({
+        Bucket: bucket,
+        Delete: { Objects: chunk.map((Key) => ({ Key })) },
+      })
+    );
+    const errors = (result as { Errors?: Array<{ Key?: string; Code?: string; Message?: string }> }).Errors || [];
+    if (errors.length > 0) {
+      const shown = errors.slice(0, 3).map((error) => `${error.Key || "unknown"}:${error.Code || error.Message || "failed"}`).join(", ");
+      throw new Error(`R2 delete failed: ${shown}`);
     }
   }
 }

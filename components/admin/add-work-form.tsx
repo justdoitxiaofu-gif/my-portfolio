@@ -3,6 +3,7 @@
 import Image from "next/image";
 import { useRef, useState, type Dispatch, type SetStateAction } from "react";
 import { cleanupUploadedFiles, uploadImageToR2 } from "@/lib/upload-client";
+import { UPLOAD_LIMIT_HINT } from "@/lib/upload-policy";
 import {
   SOFTWARE_PRESETS,
   appendUploadedFiles,
@@ -156,7 +157,7 @@ export default function AddWorkForm({
     <div className="space-y-5">
       <div>
         <label className="block text-sm text-text-muted mb-1">
-          图片（可多选，支持超大文件）
+          图片（可多选，{UPLOAD_LIMIT_HINT}）
         </label>
         {uploading ? (
           <div className="space-y-2">

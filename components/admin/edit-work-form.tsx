@@ -3,6 +3,7 @@
 import Image from "next/image";
 import { useEffect, useRef, useState } from "react";
 import { cleanupUploadedFiles, uploadImageToR2 } from "@/lib/upload-client";
+import { UPLOAD_LIMIT_HINT } from "@/lib/upload-policy";
 import {
   SOFTWARE_PRESETS,
   formatUploadResult,
@@ -179,11 +180,11 @@ export default function EditWorkForm({
     }
 
     setSaving(true);
-    setSaveStep("保存基础信息");
+    setSaveStep("保存作品");
 
     const cover = allImages[coverIndex] || allImages[0];
     try {
-      const updateRes = await fetch(`/api/works/${workId}`, {
+      const saveRes = await fetch(`/api/works/${workId}/save`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -194,33 +195,10 @@ export default function EditWorkForm({
           workDate,
           imageUrl: cover.image_url,
           thumbUrl: cover.thumb_url,
+          imageSize: cover.size,
           sizeWeight,
           expectedUpdatedAt: baseUpdatedAt,
-        }),
-      });
-
-      if (!updateRes.ok) {
-        if (updateRes.status === 409) {
-          showMsg("检测到他人已修改该作品，请刷新后重试", false);
-        } else {
-          showMsg("更新作品信息失败", false);
-        }
-        setSaving(false);
-        setSaveStep("");
-        return;
-      }
-
-      const updateBody = await updateRes.json().catch(() => null) as { updatedAt?: string } | null;
-      if (updateBody?.updatedAt) {
-        setBaseUpdatedAt(updateBody.updatedAt);
-      }
-
-      setSaveStep("同步图片列表");
-      const replaceRes = await fetch(`/api/works/${workId}/images`, {
-        method: "PUT",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(
-          allImages
+          images: allImages
             .filter((image) => image.image_url)
             .map((image, index) => ({
               imageUrl: image.image_url,
@@ -228,16 +206,23 @@ export default function EditWorkForm({
               mediaType: image.media_type,
               imageSize: image.size,
               sortOrder: index,
-            }))
-        ),
+            })),
+        }),
       });
 
-      if (!replaceRes.ok) {
-        showMsg("图片列表同步失败，请重试", false);
+      if (!saveRes.ok) {
+        if (saveRes.status === 409) {
+          showMsg("检测到他人已修改该作品，请刷新后重试", false);
+        } else {
+          showMsg("保存作品失败", false);
+        }
         setSaving(false);
         setSaveStep("");
         return;
       }
+
+      const saveBody = await saveRes.json().catch(() => null) as { updatedAt?: string } | null;
+      if (saveBody?.updatedAt) setBaseUpdatedAt(saveBody.updatedAt);
 
       showMsg("已保存", true);
       setSaving(false);
@@ -398,7 +383,7 @@ export default function EditWorkForm({
         </div>
       </div>
       <div>
-        <label className="block text-sm text-text-muted mb-1">添加新图片</label>
+        <label className="block text-sm text-text-muted mb-1">添加新图片（{UPLOAD_LIMIT_HINT}）</label>
         {uploading ? (
           <div className="space-y-2">
             <div className="flex items-center justify-between text-xs text-text-muted">

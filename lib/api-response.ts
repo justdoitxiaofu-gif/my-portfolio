@@ -6,6 +6,7 @@ export type ApiErrorCode =
   | "FORBIDDEN"
   | "NOT_FOUND"
   | "CONFLICT"
+  | "PAYLOAD_TOO_LARGE"
   | "RATE_LIMITED"
   | "SERVER_ERROR";
 
