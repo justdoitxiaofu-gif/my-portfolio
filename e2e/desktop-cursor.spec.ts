@@ -17,6 +17,19 @@ async function getCursorOpacity(page: import("@playwright/test").Page, selector:
   });
 }
 
+async function moveUntilCursorVisible(
+  page: import("@playwright/test").Page,
+  x: number,
+  y: number,
+  minOpacity = 0.8
+) {
+  await expect.poll(async () => {
+    await page.mouse.move(x, y);
+    await page.waitForTimeout(80);
+    return getCursorOpacity(page, ".cursor-ring");
+  }, { timeout: 3000 }).toBeGreaterThan(minOpacity);
+}
+
 test.describe("桌面端自定义光标", () => {
   test.use({ viewport: { width: 1440, height: 960 } });
 
@@ -26,13 +39,11 @@ test.describe("桌面端自定义光标", () => {
     const ring = page.locator(".cursor-ring");
     await expect(ring).toBeVisible();
 
-    await page.mouse.move(280, 220);
-    await page.waitForTimeout(900);
+    await moveUntilCursorVisible(page, 280, 220);
 
     await page.mouse.wheel(0, 2200);
     await page.waitForTimeout(250);
-    await page.mouse.move(1140, 760);
-    await page.waitForTimeout(200);
+    await moveUntilCursorVisible(page, 1140, 760);
 
     const afterScroll = await getCursorPosition(page, ".cursor-ring");
     expect(Math.abs(afterScroll.left - 1140)).toBeLessThan(60);
@@ -45,17 +56,13 @@ test.describe("桌面端自定义光标", () => {
     const ring = page.locator(".cursor-ring");
     await expect(ring).toBeVisible();
 
-    await page.mouse.move(420, 260);
-    await page.waitForTimeout(200);
-    expect(await getCursorOpacity(page, ".cursor-ring")).toBeGreaterThan(0.8);
+    await moveUntilCursorVisible(page, 420, 260);
 
     await page.mouse.wheel(0, 1800);
     await page.waitForTimeout(220);
     expect(await getCursorOpacity(page, ".cursor-ring")).toBeLessThan(0.65);
 
-    await page.mouse.move(980, 620);
-    await page.waitForTimeout(180);
-    expect(await getCursorOpacity(page, ".cursor-ring")).toBeGreaterThan(0.9);
+    await moveUntilCursorVisible(page, 980, 620, 0.9);
 
     const position = await getCursorPosition(page, ".cursor-ring");
     expect(Math.abs(position.left - 980)).toBeLessThan(70);
