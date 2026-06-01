@@ -225,7 +225,7 @@ export default function AddWorkForm({
                     {file.mediaType === "video" ? (
                       <video src={file.imageUrl} muted className="w-full h-full object-cover pointer-events-none" />
                     ) : (
-                      <img src={file.thumbUrl} alt="" className="w-full h-full object-cover" />
+                      <Image src={file.thumbUrl} alt="" fill sizes="80px" unoptimized className="object-cover" />
                     )}
                     <button
                       type="button"

@@ -8,7 +8,7 @@ import { requireAuth } from "@/lib/auth";
 import { reportApiError, reportMetric } from "@/lib/monitoring";
 import { writeAuditLog } from "@/lib/audit-log";
 import { fail, ok } from "@/lib/api-response";
-import { enqueueR2Delete, processR2DeleteJobs } from "@/lib/r2-delete-jobs";
+import { enqueueR2DeleteInTransaction, processR2DeleteJobs } from "@/lib/r2-delete-jobs";
 import {
   collectRemovedImageUrls,
   replaceWorkImagesInTransaction,
@@ -122,16 +122,13 @@ export async function PUT(
       });
       updatedAt = (updated.rows[0]?.updated_at as string) || "";
 
+      await enqueueR2DeleteInTransaction(transaction, removedUrls);
       await transaction.commit();
     } catch (error) {
       if (!transaction.closed) await transaction.rollback();
       throw error;
     } finally {
       if (!transaction.closed) transaction.close();
-    }
-
-    if (removedUrls.length > 0) {
-      await enqueueR2Delete(removedUrls);
     }
 
     reportMetric({ scope: "audit.work.save", value: 1, path: req.nextUrl.pathname, meta: { id: workId } });

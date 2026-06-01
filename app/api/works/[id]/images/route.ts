@@ -7,7 +7,7 @@ import { requireSameOrigin } from "@/lib/api-security";
 import { requireAuth } from "@/lib/auth";
 import { writeAuditLog } from "@/lib/audit-log";
 import { fail, ok } from "@/lib/api-response";
-import { enqueueR2Delete, processR2DeleteJobs } from "@/lib/r2-delete-jobs";
+import { enqueueR2DeleteInTransaction, processR2DeleteJobs } from "@/lib/r2-delete-jobs";
 import {
   chooseCoverImage,
   collectRemovedImageUrls,
@@ -124,20 +124,33 @@ export async function DELETE(
 
   const { id: workId } = await params;
   const keepFiles = new URL(req.url).searchParams.get("keepFiles") === "true";
-  const images = await db.execute({
-    sql: "SELECT image_url, thumb_url FROM work_images WHERE work_id = ?",
-    args: [workId],
-  });
+  const transaction = await db.transaction("write");
   const urls: string[] = [];
-  for (const row of images.rows) {
-    if (row.image_url) urls.push(row.image_url as string);
-    if (row.thumb_url) urls.push(row.thumb_url as string);
+  let removedCount = 0;
+
+  try {
+    const images = await transaction.execute({
+      sql: "SELECT image_url, thumb_url FROM work_images WHERE work_id = ?",
+      args: [workId],
+    });
+    removedCount = images.rows.length;
+    for (const row of images.rows) {
+      if (row.image_url) urls.push(row.image_url as string);
+      if (row.thumb_url) urls.push(row.thumb_url as string);
+    }
+    await transaction.execute({ sql: "DELETE FROM work_images WHERE work_id = ?", args: [workId] });
+    if (!keepFiles) {
+      await enqueueR2DeleteInTransaction(transaction, urls);
+    }
+    await transaction.commit();
+  } catch (error) {
+    if (!transaction.closed) await transaction.rollback();
+    throw error;
+  } finally {
+    if (!transaction.closed) transaction.close();
   }
-  await db.execute({ sql: "DELETE FROM work_images WHERE work_id = ?", args: [workId] });
-  if (!keepFiles) {
-    await enqueueR2Delete(urls);
-  }
-  await writeAuditLog(req, "work.images.clear", { workId, removed: images.rows.length, keepFiles });
+
+  await writeAuditLog(req, "work.images.clear", { workId, removed: removedCount, keepFiles });
   revalidatePath("/");
   revalidatePath(`/work/${workId}`);
   revalidateTag("works", "max");
@@ -204,16 +217,13 @@ export async function PUT(
       });
     }
 
+    await enqueueR2DeleteInTransaction(transaction, removedUrls);
     await transaction.commit();
   } catch (error) {
     if (!transaction.closed) await transaction.rollback();
     throw error;
   } finally {
     if (!transaction.closed) transaction.close();
-  }
-
-  if (removedUrls.length > 0) {
-    await enqueueR2Delete(removedUrls);
   }
 
   await writeAuditLog(req, "work.images.replace", {

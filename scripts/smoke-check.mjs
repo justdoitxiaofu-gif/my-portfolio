@@ -1,11 +1,16 @@
 import assert from "node:assert/strict";
 import dotenv from "dotenv";
+import { resolveSmokeSettings } from "./smoke-settings.mjs";
 
 dotenv.config({ path: ".env.local" });
 
-const baseUrl = process.env.BASE_URL || "http://127.0.0.1:3000";
-const adminKey = process.env.ADMIN_KEY || process.env.ADMIN_SECRET_KEY || "";
-const checkRateLimit = process.env.CHECK_RATE_LIMIT === "1";
+const {
+  baseUrl,
+  adminKey,
+  checkRateLimit,
+  allowAdminWrites,
+  productionMode,
+} = resolveSmokeSettings();
 
 async function request(path, init = {}) {
   const res = await fetch(`${baseUrl}${path}`, init);
@@ -47,6 +52,12 @@ async function main() {
   const setCookie = login.res.headers.get("set-cookie");
   assert.ok(setCookie, "Login should set admin cookie");
   const cookie = setCookie.split(";")[0];
+
+  if (!allowAdminWrites) {
+    const target = productionMode ? "production" : "remote";
+    console.log(`smoke: public routes and admin login passed; ${target} admin CRUD skipped (set SMOKE_ALLOW_WRITES=1 to enable writes)`);
+    return;
+  }
 
   const draft = {
     title: "__smoke_test__",

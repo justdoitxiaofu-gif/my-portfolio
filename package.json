@@ -11,6 +11,7 @@
     "db:push": "npx tsx scripts/push-schema.ts",
     "test:schema": "node scripts/check-schema-source.mjs",
     "test:smoke": "node scripts/smoke-check.mjs",
+    "test:smoke:prod": "node scripts/smoke-check.mjs --prod",
     "test:e2e": "playwright test"
   },
   "dependencies": {

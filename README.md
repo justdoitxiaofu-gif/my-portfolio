@@ -27,6 +27,7 @@ npm run build
 npm run db:push
 npm run test:schema
 npm run test:smoke
+npm run test:smoke:prod
 npm run test:e2e
 ```
 
@@ -69,6 +70,12 @@ HTTP 冒烟检查：
 2. `GET /api/works` 正常
 3. 有作品时详情页可访问
 4. 管理端登录与作品创建/更新/删除链路（需要 `ADMIN_KEY` 或 `ADMIN_SECRET_KEY`）
+
+本地目标默认允许管理端 CRUD。远程或生产目标默认只检查公开页面和管理端登录，避免误写线上数据；如需对远程目标执行创建/更新/删除，显式设置 `SMOKE_ALLOW_WRITES=1`。
+
+### `npm run test:smoke:prod`
+
+生产冒烟检查，默认目标为 `https://tangzihang.top`。可用 `SMOKE_BASE_URL` 或 `-- --base-url=https://example.com` 覆盖目标。
 
 ### `npm run test:e2e`
 

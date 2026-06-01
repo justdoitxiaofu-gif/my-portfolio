@@ -7,7 +7,7 @@ import { requireAuth } from "@/lib/auth";
 import { reportApiError, reportMetric } from "@/lib/monitoring";
 import { writeAuditLog } from "@/lib/audit-log";
 import { fail, ok } from "@/lib/api-response";
-import { enqueueR2Delete, processR2DeleteJobs } from "@/lib/r2-delete-jobs";
+import { enqueueR2DeleteInTransaction, processR2DeleteJobs } from "@/lib/r2-delete-jobs";
 import { rowToWork } from "@/lib/work-mappers";
 
 const updateSchema = z.object({
@@ -146,28 +146,37 @@ export async function DELETE(
 
     const { id } = await params;
 
+    const transaction = await db.transaction("write");
     const urls: string[] = [];
-    const work = await db.execute({
-      sql: "SELECT image_url, thumb_url FROM works WHERE id = ?",
-      args: [id],
-    });
-    if (work.rows.length > 0) {
-      if (work.rows[0].image_url) urls.push(work.rows[0].image_url as string);
-      if (work.rows[0].thumb_url) urls.push(work.rows[0].thumb_url as string);
-    }
-    const images = await db.execute({
-      sql: "SELECT image_url, thumb_url FROM work_images WHERE work_id = ?",
-      args: [id],
-    });
-    for (const row of images.rows) {
-      if (row.image_url) urls.push(row.image_url as string);
-      if (row.thumb_url) urls.push(row.thumb_url as string);
-    }
 
-    await db.execute({ sql: "DELETE FROM work_images WHERE work_id = ?", args: [id] });
-    await db.execute({ sql: "DELETE FROM works WHERE id = ?", args: [id] });
+    try {
+      const work = await transaction.execute({
+        sql: "SELECT image_url, thumb_url FROM works WHERE id = ?",
+        args: [id],
+      });
+      if (work.rows.length > 0) {
+        if (work.rows[0].image_url) urls.push(work.rows[0].image_url as string);
+        if (work.rows[0].thumb_url) urls.push(work.rows[0].thumb_url as string);
+      }
+      const images = await transaction.execute({
+        sql: "SELECT image_url, thumb_url FROM work_images WHERE work_id = ?",
+        args: [id],
+      });
+      for (const row of images.rows) {
+        if (row.image_url) urls.push(row.image_url as string);
+        if (row.thumb_url) urls.push(row.thumb_url as string);
+      }
 
-    await enqueueR2Delete(urls);
+      await transaction.execute({ sql: "DELETE FROM work_images WHERE work_id = ?", args: [id] });
+      await transaction.execute({ sql: "DELETE FROM works WHERE id = ?", args: [id] });
+      await enqueueR2DeleteInTransaction(transaction, urls);
+      await transaction.commit();
+    } catch (error) {
+      if (!transaction.closed) await transaction.rollback();
+      throw error;
+    } finally {
+      if (!transaction.closed) transaction.close();
+    }
 
     reportMetric({ scope: "audit.work.delete", value: 1, path: req.nextUrl.pathname, meta: { id } });
     await writeAuditLog(req, "work.delete", { id, fileCount: urls.length });

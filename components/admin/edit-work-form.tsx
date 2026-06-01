@@ -329,7 +329,7 @@ export default function EditWorkForm({
                 {image.media_type === "video" ? (
                   <video src={image.image_url} muted className="w-full h-full object-cover pointer-events-none" />
                 ) : (
-                  <img src={image.thumb_url} alt="" className="w-full h-full object-cover" />
+                  <Image src={image.thumb_url} alt="" fill sizes="80px" unoptimized className="object-cover" />
                 )}
                 <button
                   type="button"
