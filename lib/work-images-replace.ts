@@ -16,17 +16,23 @@ export interface CoverImage {
 
 export function collectRemovedImageUrls(
   existingRows: Array<Record<string, unknown>>,
-  nextImages: PreparedWorkImage[]
+  nextImages: PreparedWorkImage[],
+  currentCover?: CoverImage
 ): string[] {
   const newUrls = new Set(nextImages.flatMap((image) => [image.imageUrl, image.thumbUrl]));
-  const removedUrls: string[] = [];
+  const previousUrls = new Set<string>();
+  const addPreviousUrl = (value: unknown) => {
+    if (typeof value === "string" && value) previousUrls.add(value);
+  };
+
   for (const row of existingRows) {
-    const imageUrl = row.image_url as string;
-    const thumbUrl = row.thumb_url as string;
-    if (imageUrl && !newUrls.has(imageUrl)) removedUrls.push(imageUrl);
-    if (thumbUrl && !newUrls.has(thumbUrl)) removedUrls.push(thumbUrl);
+    addPreviousUrl(row.image_url);
+    addPreviousUrl(row.thumb_url);
   }
-  return removedUrls;
+  addPreviousUrl(currentCover?.image_url);
+  addPreviousUrl(currentCover?.thumb_url);
+
+  return [...previousUrls].filter((url) => !newUrls.has(url));
 }
 
 export function chooseCoverImage(nextImages: PreparedWorkImage[], currentCover?: CoverImage): PreparedWorkImage {

@@ -77,7 +77,7 @@ export async function PUT(
 
     try {
       const current = await transaction.execute({
-        sql: "SELECT updated_at FROM works WHERE id = ?",
+        sql: "SELECT updated_at, image_url, thumb_url FROM works WHERE id = ?",
         args: [workId],
       });
       if (current.rows.length === 0) {
@@ -94,7 +94,11 @@ export async function PUT(
         args: [workId],
       });
       previousCount = existing.rows.length;
-      removedUrls = collectRemovedImageUrls(existing.rows as Array<Record<string, unknown>>, images);
+      removedUrls = collectRemovedImageUrls(
+        existing.rows as Array<Record<string, unknown>>,
+        images,
+        current.rows[0] as Record<string, unknown>
+      );
 
       await transaction.execute({
         sql: `UPDATE works

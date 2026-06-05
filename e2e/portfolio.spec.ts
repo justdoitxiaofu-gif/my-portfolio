@@ -1,4 +1,5 @@
 import { expect, test, type APIRequestContext, type Page, type Response } from "@playwright/test";
+import { createClient } from "@libsql/client";
 import { ADMIN_SECRET, newAdminApi, toAdminBaseURL } from "./admin-api";
 
 const WORK_IMAGE = "https://placehold.co/1400x1800.png";
@@ -74,6 +75,18 @@ async function createApiWork(
   expect(created.status()).toBe(201);
   const createdBody = await created.json();
   return createdBody.id as string;
+}
+
+async function findR2DeleteJobContaining(value: string) {
+  const client = createClient({ url: "file:./e2e.db" });
+  try {
+    return await client.execute({
+      sql: "SELECT urls_json FROM r2_delete_jobs WHERE urls_json LIKE ?",
+      args: [`%${value}%`],
+    });
+  } finally {
+    client.close();
+  }
 }
 
 function workRow(page: Page, title: string) {
@@ -209,6 +222,73 @@ test("图片列表同步不会覆盖已选择的封面", async ({ baseURL }) => 
     const currentBody = await current.json();
     expect(currentBody.image_url).toBe(selectedCover.imageUrl);
     expect(currentBody.thumb_url).toBe(selectedCover.thumbUrl);
+  } finally {
+    await api.delete(`/api/works/${workId}`);
+    await api.dispose();
+  }
+});
+
+test("给不存在的作品添加图片会返回 404", async ({ baseURL }) => {
+  if (!baseURL) throw new Error("baseURL is required");
+  const api = await newAdminApi(baseURL);
+
+  try {
+    const response = await api.post(`/api/works/missing-${Date.now()}/images`, {
+      data: {
+        imageUrl: GALLERY_IMAGES[0].imageUrl,
+        thumbUrl: GALLERY_IMAGES[0].thumbUrl,
+        imageSize: 1024,
+      },
+    });
+
+    expect(response.status()).toBe(404);
+  } finally {
+    await api.dispose();
+  }
+});
+
+test("替换只有封面旧数据的作品时会排队清理旧 R2 文件", async ({ baseURL }) => {
+  if (!baseURL) throw new Error("baseURL is required");
+  const api = await newAdminApi(baseURL);
+
+  const stamp = Date.now();
+  const legacyCover = {
+    imageUrl: `https://example.com/originals/legacy-${stamp}.png`,
+    thumbUrl: `https://example.com/thumbnails/legacy-${stamp}.webp`,
+  };
+  const nextCover = {
+    imageUrl: `https://example.com/originals/next-${stamp}.png`,
+    thumbUrl: `https://example.com/thumbnails/next-${stamp}.webp`,
+  };
+  const workId = await createApiWork(api, `legacy-cover-e2e-${stamp}`, 200, { cover: legacyCover });
+
+  try {
+    const current = await api.get(`/api/works/${workId}`);
+    expect(current.status()).toBe(200);
+    const currentBody = await current.json();
+    await new Promise((resolve) => setTimeout(resolve, 1200));
+
+    const saved = await api.put(`/api/works/${workId}/save`, {
+      data: {
+        title: `legacy-cover-e2e-${stamp}-updated`,
+        description: "updated description",
+        tags: ["legacy", "e2e"],
+        software: [],
+        workDate: "2026-06",
+        imageUrl: nextCover.imageUrl,
+        thumbUrl: nextCover.thumbUrl,
+        imageSize: 2048,
+        sizeWeight: 1,
+        expectedUpdatedAt: currentBody.updated_at,
+        images: [{ ...nextCover, imageSize: 2048, sortOrder: 0 }],
+      },
+    });
+    expect(saved.status()).toBe(200);
+
+    const imageJob = await findR2DeleteJobContaining(legacyCover.imageUrl);
+    const thumbJob = await findR2DeleteJobContaining(legacyCover.thumbUrl);
+    expect(imageJob.rows.length).toBeGreaterThan(0);
+    expect(thumbJob.rows.length).toBeGreaterThan(0);
   } finally {
     await api.delete(`/api/works/${workId}`);
     await api.dispose();

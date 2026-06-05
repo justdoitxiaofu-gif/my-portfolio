@@ -82,6 +82,14 @@ export async function POST(
   }
 
   if (valid.length > 0) {
+    const work = await db.execute({
+      sql: "SELECT image_url FROM works WHERE id = ?",
+      args: [workId],
+    });
+    if (work.rows.length === 0) {
+      return fail("NOT_FOUND", "Work not found", 404);
+    }
+
     await db.batch(
       valid.map((it, i) => ({
         sql: `INSERT INTO work_images (id, work_id, image_url, thumb_url, media_type, sort_order, image_size)
@@ -90,11 +98,7 @@ export async function POST(
       }))
     );
 
-    const work = await db.execute({
-      sql: "SELECT image_url FROM works WHERE id = ?",
-      args: [workId],
-    });
-    if (work.rows.length > 0 && !work.rows[0].image_url) {
+    if (!work.rows[0].image_url) {
       const first = valid[0];
       await db.execute({
         sql: "UPDATE works SET image_url = ?, thumb_url = ? WHERE id = ?",
@@ -206,7 +210,11 @@ export async function PUT(
     }
 
     previousCount = existing.rows.length;
-    removedUrls = collectRemovedImageUrls(existing.rows as Array<Record<string, unknown>>, valid);
+    removedUrls = collectRemovedImageUrls(
+      existing.rows as Array<Record<string, unknown>>,
+      valid,
+      currentWork.rows[0] as Record<string, unknown>
+    );
     await replaceWorkImagesInTransaction(transaction, workId, valid);
 
     if (valid.length > 0) {
