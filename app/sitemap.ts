@@ -1,6 +1,8 @@
 import type { MetadataRoute } from "next";
 import { allWorks } from "@/lib/static-data";
 
+export const dynamic = "force-static";
+
 export default function sitemap(): MetadataRoute.Sitemap {
   const base: MetadataRoute.Sitemap = [
     { url: "https://mouyifu.art", lastModified: new Date(), changeFrequency: "weekly", priority: 1 },

@@ -6,6 +6,10 @@ import WorkDetailGallery from "@/components/work-detail-gallery";
 import BackToTopButton from "@/components/back-to-top-button";
 import { allWorks } from "@/lib/static-data";
 
+export function generateStaticParams() {
+  return allWorks.map((work) => ({ id: work.id }));
+}
+
 function getWork(id: string) {
   const work = allWorks.find((w) => w.id === id);
   if (!work) return null;
