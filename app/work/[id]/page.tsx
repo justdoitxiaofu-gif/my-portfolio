@@ -1,54 +1,34 @@
-import { unstable_cache } from "next/cache";
 import Link from "next/link";
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
-import db from "@/lib/db";
-import type { Work, WorkImage } from "@/lib/types";
+import type { WorkImage } from "@/lib/types";
 import WorkDetailGallery from "@/components/work-detail-gallery";
 import BackToTopButton from "@/components/back-to-top-button";
-import { rowToWork, rowToWorkImage } from "@/lib/work-mappers";
+import { allWorks } from "@/lib/static-data";
 
-export const revalidate = 30;
+function getWork(id: string) {
+  const work = allWorks.find((w) => w.id === id);
+  if (!work) return null;
 
-async function getWork(id: string): Promise<{ work: Work; images: WorkImage[] } | null> {
-  const load = unstable_cache(async () => {
-    const result = await db.execute({
-      sql: "SELECT * FROM works WHERE id = ?",
-      args: [id],
-    });
+  const images: WorkImage[] = [{
+    id: `${work.id}-img-1`,
+    work_id: work.id,
+    image_url: work.image_url,
+    thumb_url: work.thumb_url,
+    media_type: "image",
+    sort_order: 0,
+    image_size: 0,
+    created_at: work.created_at,
+  }];
 
-    if (result.rows.length === 0) return null;
-    const work = rowToWork(result.rows[0] as Record<string, unknown>);
-
-    const imageResult = await db.execute({
-      sql: "SELECT * FROM work_images WHERE work_id = ? ORDER BY sort_order ASC, created_at ASC",
-      args: [id],
-    });
-
-    const images = imageResult.rows.length > 0
-      ? imageResult.rows.map((row) => rowToWorkImage(row as Record<string, unknown>))
-      : [{
-          id: "",
-          work_id: id,
-          image_url: work.image_url,
-          thumb_url: work.thumb_url,
-          media_type: "image",
-          sort_order: 0,
-          image_size: work.image_size || 0,
-          created_at: work.created_at,
-        }];
-
-    return { work, images };
-  }, [`work-data:${id}`], { revalidate: 30, tags: ["works", `work:${id}`] });
-
-  return load();
+  return { work, images };
 }
 
 export async function generateMetadata(
   { params }: { params: Promise<{ id: string }> }
 ): Promise<Metadata> {
   const { id } = await params;
-  const data = await getWork(id);
+  const data = getWork(id);
   if (!data) return {};
 
   return {
@@ -70,7 +50,7 @@ export default async function WorkDetailPage(
   { params }: { params: Promise<{ id: string }> }
 ) {
   const { id } = await params;
-  const data = await getWork(id);
+  const data = getWork(id);
   if (!data) notFound();
 
   const { work, images } = data;

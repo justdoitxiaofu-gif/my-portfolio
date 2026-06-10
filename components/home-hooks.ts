@@ -1,8 +1,6 @@
 import { useCallback, useEffect, useRef, useState, type RefObject } from "react";
 import type { Section, Work } from "@/lib/types";
 
-const VISIBLE_REFRESH_MIN_INTERVAL = 30000;
-
 export function useHomeDataRefresh({
   initialIntro,
   initialTagline,
@@ -18,64 +16,18 @@ export function useHomeDataRefresh({
   initialLoadError: boolean;
   defaultTagline: string;
 }) {
-  const [intro, setIntro] = useState(initialIntro);
-  const [tagline, setTagline] = useState(initialTagline || defaultTagline);
-  const [detailSections, setDetailSections] = useState<Section[]>(initialSections);
-  const [loadError, setLoadError] = useState(initialLoadError);
-  const [loadingWorks, setLoadingWorks] = useState(initialWorks.length === 0 && !initialLoadError);
+  const [intro] = useState(initialIntro);
+  const [tagline] = useState(initialTagline || defaultTagline);
+  const [detailSections] = useState<Section[]>(initialSections);
+  const [loadError] = useState(false);
+  const [loadingWorks] = useState(false);
   const [expandedSection, setExpandedSection] = useState<string | null>(initialSections[0]?.id ?? null);
-  const [works, setWorks] = useState<Work[]>(initialWorks);
-  const refreshInFlightRef = useRef(false);
-  const lastRefreshAtRef = useRef(0);
+  const [works] = useState<Work[]>(initialWorks);
 
-  const refreshData = useCallback(async (options?: { force?: boolean }) => {
-    const now = Date.now();
-    if (refreshInFlightRef.current) return;
-    if (!options?.force && now - lastRefreshAtRef.current < VISIBLE_REFRESH_MIN_INTERVAL) return;
-    refreshInFlightRef.current = true;
-
-    try {
-      const [introRes, sectionsRes, worksRes] = await Promise.all([fetch("/api/intro"), fetch("/api/detail-sections"), fetch("/api/works")]);
-      if (!introRes.ok || !sectionsRes.ok || !worksRes.ok) {
-        throw new Error("refresh failed");
-      }
-      const [introData, nextSections, nextWorks] = await Promise.all([
-        introRes.json() as Promise<{ content?: string; tagline?: string }>,
-        sectionsRes.json() as Promise<Section[]>,
-        worksRes.json() as Promise<Work[]>,
-      ]);
-      setIntro(introData.content || "");
-      setTagline((introData.tagline || "").trim() || defaultTagline);
-      setDetailSections(nextSections);
-      setExpandedSection((current) => {
-        if (nextSections.length === 0) return null;
-        if (!current) return nextSections[0].id;
-        return nextSections.some((section) => section.id === current) ? current : nextSections[0].id;
-      });
-      setWorks(nextWorks);
-      setLoadError(false);
-    } catch {
-      setLoadError(true);
-    } finally {
-      lastRefreshAtRef.current = Date.now();
-      refreshInFlightRef.current = false;
-      setLoadingWorks(false);
-    }
-  }, [defaultTagline]);
-
-  useEffect(() => { const iv = setInterval(refreshData, 300000); return () => clearInterval(iv); }, [refreshData]);
-
-  useEffect(() => {
-    if (!initialLoadError) {
-      lastRefreshAtRef.current = Date.now();
-    }
-  }, [initialLoadError]);
-
-  useEffect(() => {
-    const onVisible = () => { if (document.visibilityState === "visible") refreshData(); };
-    document.addEventListener("visibilitychange", onVisible);
-    return () => document.removeEventListener("visibilitychange", onVisible);
-  }, [refreshData]);
+  // Static mode: no API refresh needed
+  const refreshData = useCallback(async (_options?: { force?: boolean }) => {
+    // No-op in static mode
+  }, []);
 
   return {
     intro,

@@ -11,7 +11,7 @@ import ThemeToggle from "@/components/theme-toggle";
 import { useActiveHomeSection, useBackToTopVisibility, useCustomCursor, useHomeDataRefresh } from "@/components/home-hooks";
 
 const spring = { type: "spring" as const, damping: 28, stiffness: 200, mass: 0.8 };
-const DEFAULT_TAGLINE = "Hard Surface / Stylized Character / Game Art";
+const DEFAULT_TAGLINE = "3D Character / Realistic Sculpting / PBR Texturing";
 
 function sanitizeHtml(html: string): string {
   return html
@@ -264,7 +264,7 @@ export default function HomeClient({
                 transition={{ duration: 0.7, ease: [0.2, 0.9, 0.3, 1] }}
                 className="text-xs text-accent-dim uppercase mb-6 tracking-[0.2em] hero-copy-shadow"
               >
-                CG Artist Portfolio
+                3D Character Artist
               </motion.p>
               <h1 className="font-display leading-[1.02] text-text hero-title-shadow">
                 <span className="block overflow-hidden px-[6px] pt-[4px] pb-[0.06em]">
@@ -274,7 +274,7 @@ export default function HomeClient({
                     transition={{ duration: 0.95, ease: [0.2, 0.9, 0.3, 1] }}
                     className="inline-block font-display-sc text-[clamp(2.8rem,9vw,6.2rem)]"
                   >
-                    唐子航
+                    牟怡夫
                   </motion.span>
                 </span>
                 <span className="block overflow-hidden px-[6px] pt-[4px] mt-1.5 pb-[0.14em]">
@@ -284,7 +284,7 @@ export default function HomeClient({
                     transition={{ duration: 0.95, ease: [0.2, 0.9, 0.3, 1], delay: 0.12 }}
                     className="inline-block text-[clamp(1.05rem,3.8vw,2.25rem)] text-accent hero-subtitle-shadow"
                   >
-                    Tang Zihang CG Portfolio
+                    Mou Yifu CG Portfolio
                   </motion.span>
                 </span>
               </h1>
@@ -541,9 +541,10 @@ export default function HomeClient({
                 联系方式
               </h2>
               <div className="space-y-3 text-text-muted text-sm">
-                <p><span className="text-text-muted/60">邮箱：</span><a href="mailto:1193662756@qq.com" className="nav-link inline text-text-muted hover:text-accent transition-colors">1193662756@qq.com</a></p>
-                <p><span className="text-text-muted/60">微信号：</span><span className="nav-link cursor-default">T15918177465</span></p>
-                <p><span className="text-text-muted/60">电话：</span><span className="nav-link cursor-default">15918177465</span></p>
+                <p><span className="text-text-muted/60">邮箱：</span><a href="mailto:justdoitxiaofu@gmail.com" className="nav-link inline text-text-muted hover:text-accent transition-colors">justdoitxiaofu@gmail.com</a></p>
+                <p><span className="text-text-muted/60">微信号：</span><span className="nav-link cursor-default">justdoitxiaofu</span></p>
+                <p><span className="text-text-muted/60">电话：</span><span className="nav-link cursor-default">13640555098</span></p>
+                <p><span className="text-text-muted/60">城市：</span><span className="nav-link cursor-default">重庆</span></p>
               </div>
             </div>
             <div className="md:col-span-5 md:pt-24">
@@ -551,8 +552,8 @@ export default function HomeClient({
                 <div className="reveal">
                   <div className="text-xs tracking-[0.3em] uppercase text-text-muted mb-3">Follow</div>
                   <div className="space-y-3">
-                    <a href="https://github.com/tangdogdaihuman" target="_blank" rel="noopener noreferrer" className="nav-link font-display text-lg text-text-muted hover:text-accent transition-colors block">GitHub ↗</a>
-                    <a href="https://www.artstation.com/uuey7" target="_blank" rel="noopener noreferrer" className="nav-link font-display text-lg text-text-muted hover:text-accent transition-colors block">ArtStation ↗</a>
+                    <a href="https://github.com/yifumou" target="_blank" rel="noopener noreferrer" className="nav-link font-display text-lg text-text-muted hover:text-accent transition-colors block">GitHub ↗</a>
+                    <a href="https://www.artstation.com/yifumou" target="_blank" rel="noopener noreferrer" className="nav-link font-display text-lg text-text-muted hover:text-accent transition-colors block">ArtStation ↗</a>
                   </div>
                 </div>
               </div>

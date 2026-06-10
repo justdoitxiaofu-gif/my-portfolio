@@ -1,41 +1,24 @@
 {
-  "name": "portfolio",
-  "version": "0.1.0",
+  "name": "mou-yifu-portfolio",
+  "version": "1.0.0",
   "private": true,
   "scripts": {
     "dev": "next dev",
     "build": "next build",
-    "start": "next start",
-    "lint": "eslint",
-    "typecheck": "tsc --noEmit",
-    "db:push": "npx tsx scripts/push-schema.ts",
-    "test:schema": "node scripts/check-schema-source.mjs",
-    "test:smoke": "node scripts/smoke-check.mjs",
-    "test:smoke:prod": "node scripts/smoke-check.mjs --prod",
-    "test:e2e": "playwright test"
+    "start": "next start"
   },
   "dependencies": {
-    "@aws-sdk/client-s3": "^3.1050.0",
-    "@aws-sdk/s3-request-presigner": "^3.1050.0",
-    "@libsql/client": "^0.17.3",
-    "@paralleldrive/cuid2": "^3.3.0",
     "framer-motion": "^12.40.0",
     "next": "16.2.6",
     "react": "19.2.4",
     "react-dom": "19.2.4",
-    "sharp": "^0.34.5",
-    "simplex-noise": "^4.0.3",
-    "zod": "^4.4.3"
+    "simplex-noise": "^4.0.3"
   },
   "devDependencies": {
-    "@playwright/test": "^1.54.2",
     "@tailwindcss/postcss": "^4",
     "@types/node": "^20.19.41",
     "@types/react": "^19",
     "@types/react-dom": "^19",
-    "dotenv": "^17.4.2",
-    "eslint": "^9",
-    "eslint-config-next": "16.2.6",
     "tailwindcss": "^4",
     "typescript": "^5"
   },

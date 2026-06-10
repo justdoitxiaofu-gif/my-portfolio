@@ -20,14 +20,14 @@ const inter = Inter({
 
 export const metadata: Metadata = {
   title: {
-    default: "Tang Zihang — CG Portfolio",
-    template: "%s — Tang Zihang",
+    default: "Mou Yifu — 3D Character Artist Portfolio",
+    template: "%s — Mou Yifu",
   },
-  description: "唐子航个人 CG 作品集 · 3D 角色/场景/材质 · Game Art Portfolio",
+  description: "牟怡夫个人 CG 作品集 · 3D角色建模 / 写实雕刻 / PBR材质 · Game Art Portfolio",
   openGraph: {
-    title: "Tang Zihang — CG Portfolio",
-    description: "唐子航个人 CG 作品集 · 3D 角色/场景/材质",
-    siteName: "Tang Zihang Portfolio",
+    title: "Mou Yifu — 3D Character Artist Portfolio",
+    description: "牟怡夫个人 CG 作品集 · 3D角色建模 / 写实雕刻 / PBR材质",
+    siteName: "Mou Yifu Portfolio",
     type: "website",
     locale: "zh_CN",
   },
