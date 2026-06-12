@@ -217,7 +217,7 @@ export const detailSections: Section[] = [
   {
     id: "section-3",
     title: "教育背景",
-    content: `**重庆文化艺术职业学院** — 游戏艺术设计专业 (2023-2026)`,
+    content: `**重庆交通大学** — 视觉传达设计专业 `,
   },
   {
     id: "section-4",
