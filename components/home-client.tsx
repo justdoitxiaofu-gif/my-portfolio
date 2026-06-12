@@ -7,6 +7,7 @@ import { motion, AnimatePresence, useScroll, useTransform, type MotionValue } fr
 import type { Section, Work } from "@/lib/types";
 import BgCanvas from "@/components/particle-bg";
 import AuroraCanvas from "@/components/aurora-canvas";
+import FluidCursor from "@/components/fluid-cursor";
 import ThemeToggle from "@/components/theme-toggle";
 import { useActiveHomeSection, useBackToTopVisibility, useCustomCursor, useHomeDataRefresh } from "@/components/home-hooks";
 
@@ -245,6 +246,7 @@ export default function HomeClient({
         </nav>
 
       <BgCanvas />
+      <FluidCursor />
 
       <div className="relative z-10">
         {/* Hero */}
