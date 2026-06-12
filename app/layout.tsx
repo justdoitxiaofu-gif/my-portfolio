@@ -1,5 +1,7 @@
 import type { Metadata } from "next";
 import { Bodoni_Moda, Inter, ZCOOL_XiaoWei } from "next/font/google";
+import { Analytics } from "@vercel/analytics/next";
+import VisitTracker from "@/components/visit-tracker";
 import "./globals.css";
 
 const bodoni = Bodoni_Moda({
@@ -48,7 +50,11 @@ export default function RootLayout({
           }}
         />
       </head>
-      <body className="min-h-screen bg-bg text-text antialiased">{children}</body>
+      <body className="min-h-screen bg-bg text-text antialiased">
+        {children}
+        <VisitTracker />
+        <Analytics />
+      </body>
     </html>
   );
 }
