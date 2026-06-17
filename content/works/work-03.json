@@ -1,0 +1,19 @@
+{
+  "id": "work-03",
+  "title": "唐三彩兽形佛塔刹",
+  "description": "传统文化主题作品，唐三彩风格兽形佛塔刹雕刻与材质还原。",
+  "image": "/works/page_10.jpg",
+  "tags": [
+    "传统文化",
+    "道具"
+  ],
+  "software": [
+    "ZBrush",
+    "Substance Painter",
+    "Maya"
+  ],
+  "work_date": "2024",
+  "pinned": true,
+  "sort_order": 90,
+  "size_weight": 1.2
+}

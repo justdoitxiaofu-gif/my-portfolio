@@ -4,14 +4,14 @@ import { notFound } from "next/navigation";
 import type { WorkImage } from "@/lib/types";
 import WorkDetailGallery from "@/components/work-detail-gallery";
 import BackToTopButton from "@/components/back-to-top-button";
-import { allWorks } from "@/lib/static-data";
+import { getAllWorks, getWorkById } from "@/lib/content";
 
 export function generateStaticParams() {
-  return allWorks.map((work) => ({ id: work.id }));
+  return getAllWorks().map((work) => ({ id: work.id }));
 }
 
 function getWork(id: string) {
-  const work = allWorks.find((w) => w.id === id);
+  const work = getWorkById(id);
   if (!work) return null;
 
   const images: WorkImage[] = [{

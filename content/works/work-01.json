@@ -1,0 +1,19 @@
+{
+  "id": "work-01",
+  "title": "镇墓兽 · 写实生物雕刻",
+  "description": "传统文化与写实生物雕刻结合，高精度ZBrush雕刻作品，完整展示高模细节与贴图表现。",
+  "image": "/works/page_06.jpg",
+  "tags": [
+    "写实雕刻",
+    "生物"
+  ],
+  "software": [
+    "ZBrush",
+    "Substance Painter",
+    "Marmoset"
+  ],
+  "work_date": "2024",
+  "pinned": true,
+  "sort_order": 100,
+  "size_weight": 1.5
+}

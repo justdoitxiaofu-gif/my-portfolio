@@ -1,0 +1,34 @@
+fragment WorksParts on Works {
+  __typename
+  title
+  description
+  image
+  tags
+  software
+  work_date
+  pinned
+  sort_order
+  size_weight
+}
+
+fragment SectionsParts on Sections {
+  __typename
+  title
+  content
+}
+
+fragment SettingsParts on Settings {
+  __typename
+  name
+  nameEn
+  tagline
+  introContent
+  email
+  phone
+  wechat
+  city
+  github
+  artstation
+  title
+  description
+}

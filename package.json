@@ -3,8 +3,9 @@
   "version": "1.0.0",
   "private": true,
   "scripts": {
-    "dev": "next dev",
-    "build": "next build",
+    "dev": "tinacms dev -c \"next dev\"",
+    "build": "tinacms build || echo 'tina build skipped' && next build",
+    "build:site": "next build",
     "start": "next start"
   },
   "dependencies": {
@@ -13,10 +14,12 @@
     "next": "16.2.6",
     "react": "19.2.4",
     "react-dom": "19.2.4",
-    "simplex-noise": "^4.0.3"
+    "simplex-noise": "^4.0.3",
+    "tinacms": "^3.9.3"
   },
   "devDependencies": {
     "@tailwindcss/postcss": "^4",
+    "@tinacms/cli": "^2.5.1",
     "@types/node": "^20.19.41",
     "@types/react": "^19",
     "@types/react-dom": "^19",

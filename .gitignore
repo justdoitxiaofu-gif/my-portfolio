@@ -49,3 +49,9 @@ next-env.d.ts
 handoff.md
 
 .vercel
+
+# TinaCMS
+admin/
+
+# 临时迁移脚本
+migrate-data.cjs

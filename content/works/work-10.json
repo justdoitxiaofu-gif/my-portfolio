@@ -1,0 +1,18 @@
+{
+  "id": "work-10",
+  "title": "个人作品集 · 更多展示",
+  "description": "更多角色、道具与材质作品合集。",
+  "image": "/works/page_09.jpg",
+  "tags": [
+    "作品集"
+  ],
+  "software": [
+    "ZBrush",
+    "Maya",
+    "Substance Painter"
+  ],
+  "work_date": "2024",
+  "pinned": false,
+  "sort_order": 60,
+  "size_weight": 1
+}

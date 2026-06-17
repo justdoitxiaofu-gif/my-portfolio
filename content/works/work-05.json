@@ -1,0 +1,20 @@
+{
+  "id": "work-05",
+  "title": "次世代军事角色",
+  "description": "次世代军事风格全身角色，完整展示高模、低模、贴图制作流程。",
+  "image": "/works/page_20.jpg",
+  "tags": [
+    "次世代角色",
+    "写实"
+  ],
+  "software": [
+    "ZBrush",
+    "Maya",
+    "Substance Painter",
+    "Marmoset"
+  ],
+  "work_date": "2024",
+  "pinned": true,
+  "sort_order": 80,
+  "size_weight": 1.5
+}

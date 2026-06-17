@@ -1,0 +1,19 @@
+{
+  "id": "work-06",
+  "title": "鸣潮 · 库洛科技项目作品",
+  "description": "参与库洛科技《鸣潮》3.0-3.2版本角色建模与材质制作。",
+  "image": "/works/page_04.jpg",
+  "tags": [
+    "项目经历",
+    "角色"
+  ],
+  "software": [
+    "Maya",
+    "ZBrush",
+    "Substance Painter"
+  ],
+  "work_date": "2025",
+  "pinned": true,
+  "sort_order": 110,
+  "size_weight": 1.5
+}

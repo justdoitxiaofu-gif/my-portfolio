@@ -1,0 +1,18 @@
+{
+  "id": "work-02",
+  "title": "雨蛙 · 写实生物雕刻",
+  "description": "高精度写实雨蛙雕刻，注重皮肤质感与微观细节的表现。",
+  "image": "/works/page_08.jpg",
+  "tags": [
+    "写实雕刻",
+    "生物"
+  ],
+  "software": [
+    "ZBrush",
+    "Substance Painter"
+  ],
+  "work_date": "2024",
+  "pinned": true,
+  "sort_order": 95,
+  "size_weight": 1
+}
