@@ -216,6 +216,30 @@ export default function HomeClient({
     return () => obs.disconnect();
   }, [works]);
 
+  useEffect(() => {
+    try {
+      if (sessionStorage.getItem("portfolioRestoreScroll") !== "1") return;
+      const savedY = Number(sessionStorage.getItem("portfolioScrollY") || "0");
+      sessionStorage.removeItem("portfolioRestoreScroll");
+      if (savedY > 0) {
+        requestAnimationFrame(() => {
+          window.scrollTo({ top: savedY, behavior: "auto" });
+        });
+      }
+    } catch {
+      // Ignore storage failures.
+    }
+  }, [works.length]);
+
+  const savePortfolioScroll = useCallback(() => {
+    try {
+      sessionStorage.setItem("portfolioScrollY", String(window.scrollY));
+      sessionStorage.setItem("portfolioRestoreScroll", "1");
+    } catch {
+      // Ignore storage failures.
+    }
+  }, []);
+
   const tags = useMemo(() => [...new Set(works.flatMap((w) => w.tags))], [works]);
   const filtered = useMemo(
     () => (activeTag ? works.filter((w) => w.tags.includes(activeTag)) : works),
@@ -488,7 +512,7 @@ export default function HomeClient({
                   transition={{ duration: 0.35, ease: [0.2, 0.9, 0.3, 1] }}
                   className={`work-card group ${colSpan}`}
                 >
-                  <Link href={`/work/${work.id}`} className="block" data-hover>
+                  <Link href={`/work/${work.id}`} onClick={savePortfolioScroll} className="block" data-hover>
                     <div className="flex justify-end mb-2">
                       <span className="zoom-hint shrink-0 text-[0.6rem] md:text-[0.66rem] tracking-[0.08em]">
                         <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="11" cy="11" r="7" /><line x1="21" y1="21" x2="16.65" y2="16.65" /><line x1="11" y1="8" x2="11" y2="14" /><line x1="8" y1="11" x2="14" y2="11" /></svg>

@@ -1,9 +1,9 @@
-import Link from "next/link";
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import type { WorkImage } from "@/lib/types";
 import WorkDetailGallery from "@/components/work-detail-gallery";
 import BackToTopButton from "@/components/back-to-top-button";
+import BackToWorksButton from "@/components/back-to-works-button";
 import { getAllWorks, getWorkById } from "@/lib/content";
 
 export function generateStaticParams() {
@@ -70,9 +70,7 @@ export default async function WorkDetailPage(
     <main className="min-h-screen bg-bg text-text">
       <section className="max-w-[112rem] mx-auto px-2 md:px-4 py-6 md:py-12">
         <div className="sticky top-3 z-20 inline-block">
-          <Link href="/#works" className="inline-flex bg-bg/80 backdrop-blur-sm border border-border px-4 py-2 text-xs tracking-[0.2em] uppercase text-text-muted hover:border-accent hover:text-accent transition-colors">
-            返回作品集
-          </Link>
+          <BackToWorksButton />
         </div>
 
         <header className="mt-8 md:mt-10 mb-10 md:mb-14 border-b border-border/40 pb-8 md:pb-10">
