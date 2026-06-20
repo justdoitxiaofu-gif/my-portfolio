@@ -1,24 +1,28 @@
 {
   "id": "work-08",
-  "title": "UE 角色集成 · 异步流程协作",
-  "description": "Asynchronous Process Collaboration & UE Character Integration\n\n探索了将角色模型由静态资产转化为可驱动动画角色的完整流程：利用 Mixamo 进行骨架绑定，在 UE 中完成骨骼重定向至标准骨架。将角色嵌入 UE 标准第三人称模版，完成对默认 Player 的替换，并进行基础动作驱动测试与 STT_Attack 蓝图搭建，验证角色在游戏引擎中的行为表现力。",
-  "image": "/works/w08_b.jpg",
+  "title": "次世代军事角色",
+  "description": "AAA Call of Duty Character Outfit\n\n旨在打造符合次世代标准的完整角色模型，致力于提升规范学习与美术表现、材质体现方面的卓越水平。角色含大量高精度部件与装备，通过粗糙度与金属度的对比，展现金属、布料、皮革等多种材质间的质感差异。涵盖高低模、布线 UV、ARM 多通道贴图的全流程展示。",
+  "image": "/works/w07_a.jpg",
   "images": [
-    "/works/w08_a.jpg",
-    "/works/w08_b.jpg"
+    "/works/w07_a.jpg",
+    "/works/w07_b.jpg",
+    "/works/w07_c.jpg",
+    "/works/w07_d.jpg",
+    "/works/w07_e.jpg"
   ],
   "tags": [
-    "UE集成",
-    "角色绑定",
-    "蓝图"
+    "次世代角色",
+    "硬表面",
+    "PBR材质"
   ],
   "software": [
-    "Unreal Engine 5",
-    "Mixamo",
-    "Maya"
+    "ZBrush",
+    "Maya",
+    "Marvelous Designer",
+    "Substance Painter"
   ],
   "work_date": "2024",
   "pinned": false,
-  "sort_order": 85,
+  "sort_order": 920,
   "size_weight": 1.0
 }

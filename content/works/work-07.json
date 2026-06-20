@@ -1,24 +1,25 @@
 {
   "id": "work-07",
-  "title": "雨蛙 · 写实生物雕刻",
-  "description": "Realistic Biological Sculpture\n\n本作品旨在还原雨蛙类生物独有的通透皮肤质感，重点运用了 Blender 中的 SSS（次表面散射）渲染技术，以增强其生物特性与视觉真实感。完整展示多角度成品渲染、高模布线与设计参考。",
-  "image": "/works/w02_a.jpg",
+  "title": "永劫无间 · 道具模型",
+  "description": "Naraka: Bladepoint Prop Model\n\n《永劫无间》风格的东方美学道具创作。许多模型依赖纯手工雕刻完成，对曲线与线条的掌控提出了更高要求。在创作中不断优化线条流动与形体节奏，力求表现精致且富有东方美感的造型语言，高度还原原画设定。",
+  "image": "/works/w06_a.jpg",
   "images": [
-    "/works/w02_a.jpg",
-    "/works/w02_b.jpg"
+    "/works/w06_a.jpg",
+    "/works/w06_b.jpg",
+    "/works/w06_c.jpg"
   ],
   "tags": [
-    "写实雕刻",
-    "生物",
-    "SSS材质"
+    "游戏道具",
+    "东方美学",
+    "硬表面"
   ],
   "software": [
     "ZBrush",
-    "Blender",
+    "Maya",
     "Substance Painter"
   ],
   "work_date": "2024",
   "pinned": false,
-  "sort_order": 90,
+  "sort_order": 930,
   "size_weight": 1.0
 }

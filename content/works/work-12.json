@@ -1,21 +1,28 @@
 {
   "id": "work-12",
-  "title": "MD 布料结算练习",
-  "description": "Marvelous Designer Cloth Simulation Practice\n\n以次世代军事角色服装为题的 Marvelous Designer 布料结算练习，完成服装版片设计、布料模拟与多角度结算展示，强化对褶皱走向与布料动态的控制能力。",
-  "image": "/works/w05_a.jpg",
+  "title": "古风唯美服饰套装",
+  "description": "Antique Clothing Set\n\n热衷于探索多种风格的模型创作，对古风服饰的结构与纹样充满兴趣。在制作中力求用细节与光影还原其独特的雅致与厚重感。完整呈现从结构设计、高精度雕刻、PBR 材质绘制到 Toolbag 实时渲染与灯光打磨的全流程，并对比两版灯光方案展现材质高贵质感。",
+  "image": "/works/w11_a.jpg",
   "images": [
-    "/works/w05_a.jpg"
+    "/works/w11_a.jpg",
+    "/works/w11_b.jpg",
+    "/works/w11_c.jpg",
+    "/works/w11_d.jpg",
+    "/works/w11_e.jpg"
   ],
   "tags": [
-    "布料模拟",
-    "服装"
+    "古风服饰",
+    "布料",
+    "PBR材质"
   ],
   "software": [
+    "ZBrush",
     "Marvelous Designer",
-    "ZBrush"
+    "Substance Painter",
+    "Marmoset Toolbag"
   ],
   "work_date": "2024",
   "pinned": false,
-  "sort_order": 65,
-  "size_weight": 0.7
+  "sort_order": 880,
+  "size_weight": 1.0
 }

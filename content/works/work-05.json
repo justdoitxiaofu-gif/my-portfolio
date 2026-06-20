@@ -1,24 +1,21 @@
 {
   "id": "work-05",
-  "title": "镇墓兽 · 写实生物雕刻",
-  "description": "Realistic Biological Sculpture\n\n本作品聚焦于对造型与结构的深入刻画，力求在形体塑造与层次梳理之间达到高度统一。尝试将兽形面部特征与传统镇墓兽的神秘造型进行融合，注重通过清晰的体块关系和富有张力的轮廓线构建整体视觉冲击力。结合贴图阶段对金属与非金属材质的细致区分，实现真实且富有层次的表现。",
-  "image": "/works/w01_a.jpg",
+  "title": "幻想蜥蜴生物",
+  "description": "Fantasy Lizard Creature\n\n幻想题材的生物雕刻练习，注重生物形态结构与皮肤褶皱质感的塑造，多角度展示造型张力与头部细节刻画。",
+  "image": "/works/w04_a.jpg",
   "images": [
-    "/works/w01_a.jpg",
-    "/works/w01_b.jpg"
+    "/works/w04_a.jpg"
   ],
   "tags": [
     "写实雕刻",
-    "生物",
-    "传统题材"
+    "幻想生物"
   ],
   "software": [
     "ZBrush",
-    "Substance Painter",
-    "Marmoset Toolbag"
+    "Substance Painter"
   ],
   "work_date": "2024",
-  "pinned": true,
-  "sort_order": 100,
+  "pinned": false,
+  "sort_order": 950,
   "size_weight": 1.0
 }

@@ -89,24 +89,73 @@ function WorkThumbImage({
     }
   }, [onReady, work.id, work.thumb_url]);
 
+  const gallery = work.images && work.images.length > 0 ? work.images : [work.thumb_url];
+  const cover = gallery[0] || work.thumb_url;
+  // 右侧细节小图：取封面之后的最多两张
+  const details = gallery.slice(1, 3);
+
+  // 单图：纯大图完整展示
+  if (details.length === 0) {
+    return (
+      <div className="work-thumb-frame">
+        <Image
+          ref={imageRef}
+          src={cover}
+          alt={work.title}
+          width={1600}
+          height={900}
+          unoptimized
+          className={`work-thumb ${ready ? "work-thumb-ready" : ""} block w-full h-auto object-contain`}
+          sizes="(max-width: 768px) 92vw, 92vw"
+          priority={priority}
+          loading={priority ? "eager" : "lazy"}
+          onLoad={(event) => {
+            if (event.currentTarget.naturalWidth > 0) {
+              onReady(work.id);
+            }
+          }}
+        />
+      </div>
+    );
+  }
+
+  // 多图：左大图（完整不裁剪，决定高度）+ 右侧竖排细节小图（1~2张）
   return (
-    <Image
-      ref={imageRef}
-      src={work.thumb_url}
-      alt={work.title}
-      width={1200}
-      height={1600}
-      unoptimized
-      className={`work-thumb ${ready ? "work-thumb-ready" : ""} block mx-auto w-full h-auto max-h-[32rem] object-contain object-center`}
-      sizes="(max-width: 768px) 92vw, (max-width: 1280px) 50vw, 36vw"
-      priority={priority}
-      loading={priority ? "eager" : "lazy"}
-      onLoad={(event) => {
-        if (event.currentTarget.naturalWidth > 0) {
-          onReady(work.id);
-        }
-      }}
-    />
+    <div className="work-thumb-split">
+      <div className="work-thumb-main">
+        <Image
+          ref={imageRef}
+          src={cover}
+          alt={work.title}
+          width={1600}
+          height={900}
+          unoptimized
+          className={`work-thumb ${ready ? "work-thumb-ready" : ""}`}
+          sizes="(max-width: 768px) 92vw, 60vw"
+          priority={priority}
+          loading={priority ? "eager" : "lazy"}
+          onLoad={(event) => {
+            if (event.currentTarget.naturalWidth > 0) {
+              onReady(work.id);
+            }
+          }}
+        />
+      </div>
+      <div className={`work-thumb-side ${details.length === 1 ? "single-detail" : ""}`}>
+        {details.map((src, idx) => (
+          <div key={src + idx} className="work-thumb-side-item">
+            <Image
+              src={src}
+              alt={`${work.title} 细节 ${idx + 1}`}
+              width={800}
+              height={450}
+              unoptimized
+              loading="lazy"
+            />
+          </div>
+        ))}
+      </div>
+    </div>
   );
 }
 
@@ -358,7 +407,7 @@ export default function HomeClient({
       </section>
 
       {/* Works */}
-      <section id="works" className="scroll-mt-24 md:scroll-mt-28 px-4 md:px-6 pt-14 md:pt-16 pb-20 md:pb-24 max-w-7xl mx-auto">
+      <section id="works" className="scroll-mt-24 md:scroll-mt-28 px-4 md:px-8 pt-14 md:pt-16 pb-20 md:pb-24 max-w-[120rem] mx-auto">
         <div className="reveal">
           <div className="flex items-center gap-4 mb-4">
             <span className="font-display italic text-accent text-2xl">01</span>
@@ -427,8 +476,7 @@ export default function HomeClient({
           <div className="grid grid-cols-1 md:grid-cols-12 gap-6 md:gap-10">
             <AnimatePresence mode="popLayout">
             {sorted.map((work, i) => {
-              const w = work.size_weight ?? 1;
-              const colSpan = w >= 1.5 ? "md:col-span-8" : w >= 1.0 ? (i % 2 === 0 ? "md:col-span-7" : "md:col-span-5") : "md:col-span-4";
+              const colSpan = "md:col-span-12";
               return (
                 <motion.div
                   key={work.id}
@@ -441,6 +489,12 @@ export default function HomeClient({
                   className={`work-card group ${colSpan}`}
                 >
                   <Link href={`/work/${work.id}`} className="block" data-hover>
+                    <div className="flex justify-end mb-2">
+                      <span className="zoom-hint shrink-0 text-[0.6rem] md:text-[0.66rem] tracking-[0.08em]">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="11" cy="11" r="7" /><line x1="21" y1="21" x2="16.65" y2="16.65" /><line x1="11" y1="8" x2="11" y2="14" /><line x1="8" y1="11" x2="14" y2="11" /></svg>
+                        点击查看清晰大图
+                      </span>
+                    </div>
                     <div className="overflow-hidden">
                       <WorkThumbImage work={work} priority={i < 2} ready={Boolean(thumbReady[work.id])} onReady={markThumbReady} />
                     </div>
@@ -449,7 +503,7 @@ export default function HomeClient({
                         {work.pinned && <span className="text-accent">Featured</span>}
                         {work.work_date && <span>{work.work_date}</span>}
                       </div>
-                      <h3 className="font-display text-[1.15rem] md:text-[1.45rem] text-text mt-1 leading-[1.1] group-hover:text-accent transition-colors">{work.title}</h3>
+                      <h3 className="font-display text-[1.15rem] md:text-[1.45rem] text-text leading-[1.1] mt-1 group-hover:text-accent transition-colors">{work.title}</h3>
                       <div className="flex items-center gap-2.5 flex-wrap text-[0.7rem] text-text-muted tracking-[0.11em] mt-1.5">
                         {work.tags.slice(0, 2).map((t) => <span key={t} className="text-accent-dim/90">{t}</span>)}
                         <span className="text-text-muted/60">{(work.image_count || 1) > 1 ? `${work.image_count} 张图集` : "单图展示"}</span>

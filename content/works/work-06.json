@@ -1,27 +1,21 @@
 {
   "id": "work-06",
-  "title": "武将铠甲",
-  "description": "Chinese General Armor\n\n古风武将铠甲套装，注重金属甲片、布料披挂与佛珠配饰等多材质的层次表现。完整呈现 Unreal Engine 渲染效果、高模雕刻细节、布线 UV（面数 8029 / 三角面 12775）以及法线、AO、曲率等多通道贴图烘焙展示。",
-  "image": "/works/w12_a.jpg",
+  "title": "MD 布料结算练习",
+  "description": "Marvelous Designer Cloth Simulation Practice\n\n以次世代军事角色服装为题的 Marvelous Designer 布料结算练习，完成服装版片设计、布料模拟与多角度结算展示，强化对褶皱走向与布料动态的控制能力。",
+  "image": "/works/w05_a.jpg",
   "images": [
-    "/works/w12_a.jpg",
-    "/works/w12_b.jpg",
-    "/works/w12_c.jpg",
-    "/works/w12_d.jpg"
+    "/works/w05_a.jpg"
   ],
   "tags": [
-    "古风铠甲",
-    "硬表面",
-    "PBR材质"
+    "布料模拟",
+    "服装"
   ],
   "software": [
-    "ZBrush",
-    "Maya",
-    "Substance Painter",
-    "Unreal Engine 5"
+    "Marvelous Designer",
+    "ZBrush"
   ],
   "work_date": "2024",
-  "pinned": true,
-  "sort_order": 95,
+  "pinned": false,
+  "sort_order": 940,
   "size_weight": 1.0
 }

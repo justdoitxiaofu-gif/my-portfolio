@@ -1,28 +1,24 @@
 {
   "id": "work-04",
-  "title": "古风唯美服饰套装",
-  "description": "Antique Clothing Set\n\n热衷于探索多种风格的模型创作，对古风服饰的结构与纹样充满兴趣。在制作中力求用细节与光影还原其独特的雅致与厚重感。完整呈现从结构设计、高精度雕刻、PBR 材质绘制到 Toolbag 实时渲染与灯光打磨的全流程，并对比两版灯光方案展现材质高贵质感。",
-  "image": "/works/w11_a.jpg",
+  "title": "唐三彩兽形佛塔刹",
+  "description": "Tang Sancai Glazed Beast-shaped Finial of a Buddhist Pagoda\n\n传统文物题材的高精度复刻。还原唐三彩低温铅釉陶器特有的黄、绿、白多彩釉色流淌交融的艺术效果，注重兽形造型的张力与釉面质感的真实还原。完整呈现高模雕刻、釉色绘制与多角度展示。",
+  "image": "/works/w03_a.jpg",
   "images": [
-    "/works/w11_a.jpg",
-    "/works/w11_b.jpg",
-    "/works/w11_c.jpg",
-    "/works/w11_d.jpg",
-    "/works/w11_e.jpg"
+    "/works/w03_a.jpg",
+    "/works/w03_b.jpg"
   ],
   "tags": [
-    "古风服饰",
-    "布料",
-    "PBR材质"
+    "传统文物",
+    "写实雕刻",
+    "釉色材质"
   ],
   "software": [
     "ZBrush",
-    "Marvelous Designer",
     "Substance Painter",
     "Marmoset Toolbag"
   ],
-  "work_date": "2024",
-  "pinned": true,
-  "sort_order": 105,
-  "size_weight": 1.5
+  "work_date": "2023",
+  "pinned": false,
+  "sort_order": 960,
+  "size_weight": 1.0
 }

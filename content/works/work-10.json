@@ -1,21 +1,21 @@
 {
   "id": "work-10",
-  "title": "幻想蜥蜴生物",
-  "description": "Fantasy Lizard Creature\n\n幻想题材的生物雕刻练习，注重生物形态结构与皮肤褶皱质感的塑造，多角度展示造型张力与头部细节刻画。",
-  "image": "/works/w04_a.jpg",
+  "title": "UE 实时场景 · 林间废墟的沉寂时刻",
+  "description": "UE Real-time Scene: The Silent Moment of the Ruins in the Forest\n\n本场景以废弃木屋与林地自然杂草为主题，尝试通过植被密度、地表细节控制、风蚀道具设计与光影渲染，表现出空间的时间感与静谧氛围。场景使用 UE 制作，主要模型与材质为整合资产包，重在模拟真实项目中的环境构建流程与氛围表现节奏把控。\n\nUE5 | Lumen | Nanite 兼容资产 | 动态植被分布 | 体积光 | 叙事环境构建",
+  "image": "/works/w09_a.jpg",
   "images": [
-    "/works/w04_a.jpg"
+    "/works/w09_a.jpg"
   ],
   "tags": [
-    "写实雕刻",
-    "幻想生物"
+    "UE场景",
+    "环境",
+    "Lumen"
   ],
   "software": [
-    "ZBrush",
-    "Substance Painter"
+    "Unreal Engine 5"
   ],
   "work_date": "2024",
   "pinned": false,
-  "sort_order": 75,
-  "size_weight": 0.7
+  "sort_order": 900,
+  "size_weight": 1.0
 }

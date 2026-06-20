@@ -1,24 +1,27 @@
 {
   "id": "work-01",
-  "title": "唐三彩兽形佛塔刹",
-  "description": "Tang Sancai Glazed Beast-shaped Finial of a Buddhist Pagoda\n\n传统文物题材的高精度复刻。还原唐三彩低温铅釉陶器特有的黄、绿、白多彩釉色流淌交融的艺术效果，注重兽形造型的张力与釉面质感的真实还原。完整呈现高模雕刻、釉色绘制与多角度展示。",
-  "image": "/works/w03_a.jpg",
+  "title": "武将铠甲",
+  "description": "Chinese General Armor\n\n古风武将铠甲套装，注重金属甲片、布料披挂与佛珠配饰等多材质的层次表现。完整呈现 Unreal Engine 渲染效果、高模雕刻细节、布线 UV（面数 8029 / 三角面 12775）以及法线、AO、曲率等多通道贴图烘焙展示。",
+  "image": "/works/w12_a.jpg",
   "images": [
-    "/works/w03_a.jpg",
-    "/works/w03_b.jpg"
+    "/works/w12_a.jpg",
+    "/works/w12_b.jpg",
+    "/works/w12_c.jpg",
+    "/works/w12_d.jpg"
   ],
   "tags": [
-    "传统文物",
-    "写实雕刻",
-    "釉色材质"
+    "古风铠甲",
+    "硬表面",
+    "PBR材质"
   ],
   "software": [
     "ZBrush",
+    "Maya",
     "Substance Painter",
-    "Marmoset Toolbag"
+    "Unreal Engine 5"
   ],
-  "work_date": "2023",
+  "work_date": "2024",
   "pinned": true,
-  "sort_order": 120,
+  "sort_order": 990,
   "size_weight": 1.5
 }

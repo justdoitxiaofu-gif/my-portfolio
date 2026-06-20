@@ -1,21 +1,24 @@
 {
   "id": "work-09",
-  "title": "UE 实时场景 · 林间废墟的沉寂时刻",
-  "description": "UE Real-time Scene: The Silent Moment of the Ruins in the Forest\n\n本场景以废弃木屋与林地自然杂草为主题，尝试通过植被密度、地表细节控制、风蚀道具设计与光影渲染，表现出空间的时间感与静谧氛围。场景使用 UE 制作，主要模型与材质为整合资产包，重在模拟真实项目中的环境构建流程与氛围表现节奏把控。\n\nUE5 | Lumen | Nanite 兼容资产 | 动态植被分布 | 体积光 | 叙事环境构建",
-  "image": "/works/w09_a.jpg",
+  "title": "UE 角色集成 · 异步流程协作",
+  "description": "Asynchronous Process Collaboration & UE Character Integration\n\n探索了将角色模型由静态资产转化为可驱动动画角色的完整流程：利用 Mixamo 进行骨架绑定，在 UE 中完成骨骼重定向至标准骨架。将角色嵌入 UE 标准第三人称模版，完成对默认 Player 的替换，并进行基础动作驱动测试与 STT_Attack 蓝图搭建，验证角色在游戏引擎中的行为表现力。",
+  "image": "/works/w08_b.jpg",
   "images": [
-    "/works/w09_a.jpg"
+    "/works/w08_a.jpg",
+    "/works/w08_b.jpg"
   ],
   "tags": [
-    "UE场景",
-    "环境",
-    "Lumen"
+    "UE集成",
+    "角色绑定",
+    "蓝图"
   ],
   "software": [
-    "Unreal Engine 5"
+    "Unreal Engine 5",
+    "Mixamo",
+    "Maya"
   ],
   "work_date": "2024",
   "pinned": false,
-  "sort_order": 80,
+  "sort_order": 910,
   "size_weight": 1.0
 }
