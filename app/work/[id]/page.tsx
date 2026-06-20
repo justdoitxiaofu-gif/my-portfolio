@@ -14,16 +14,17 @@ function getWork(id: string) {
   const work = getWorkById(id);
   if (!work) return null;
 
-  const images: WorkImage[] = [{
-    id: `${work.id}-img-1`,
+  const urls = work.images && work.images.length > 0 ? work.images : [work.image_url];
+  const images: WorkImage[] = urls.map((url, index) => ({
+    id: `${work.id}-img-${index + 1}`,
     work_id: work.id,
-    image_url: work.image_url,
-    thumb_url: work.thumb_url,
+    image_url: url,
+    thumb_url: index === 0 ? work.thumb_url : url,
     media_type: "image",
-    sort_order: 0,
+    sort_order: index,
     image_size: 0,
     created_at: work.created_at,
-  }];
+  }));
 
   return { work, images };
 }

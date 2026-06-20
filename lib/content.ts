@@ -54,7 +54,11 @@ function readJsonFilesFrom(dir: string): Record<string, unknown>[] {
 
 function normalizeWork(raw: Record<string, unknown>): Work {
   const id = (raw.id as string) || (raw._file as string);
-  const image = (raw.image as string) || (raw.image_url as string) || "";
+  // 多图画廊：images 数组优先；单图字段 image/image_url 作为兜底
+  const imagesRaw = Array.isArray(raw.images) ? (raw.images as string[]).filter(Boolean) : [];
+  const single = (raw.image as string) || (raw.image_url as string) || "";
+  const images = imagesRaw.length > 0 ? imagesRaw : (single ? [single] : []);
+  const image = images[0] || single || "";
   const thumb = (raw.thumb_url as string) || image;
   return {
     id,
@@ -71,7 +75,8 @@ function normalizeWork(raw: Record<string, unknown>): Work {
     size_weight: (raw.size_weight as number) ?? 1,
     created_at: (raw.created_at as string) || "",
     updated_at: (raw.updated_at as string) || "",
-    image_count: (raw.image_count as number) ?? 1,
+    image_count: images.length || 1,
+    images,
   };
 }
 

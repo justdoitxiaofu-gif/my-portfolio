@@ -56,8 +56,14 @@ export default defineConfig({
           {
             type: "image",
             name: "image",
-            label: "作品图片",
+            label: "封面图片（列表展示用）",
             required: true,
+          },
+          {
+            type: "image",
+            name: "images",
+            label: "作品图集（详情页画廊，可多张，第一张通常同封面）",
+            list: true,
           },
           {
             type: "string",

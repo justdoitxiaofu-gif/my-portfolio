@@ -1,19 +1,28 @@
 {
   "id": "work-04",
-  "title": "龙纹武器 · 逆水寒风格",
-  "description": "逆水寒风格龙纹武器道具制作，融合中国传统纹样与仙侠美学。",
-  "image": "/works/page_15.jpg",
+  "title": "古风唯美服饰套装",
+  "description": "Antique Clothing Set\n\n热衷于探索多种风格的模型创作，对古风服饰的结构与纹样充满兴趣。在制作中力求用细节与光影还原其独特的雅致与厚重感。完整呈现从结构设计、高精度雕刻、PBR 材质绘制到 Toolbag 实时渲染与灯光打磨的全流程，并对比两版灯光方案展现材质高贵质感。",
+  "image": "/works/w11_a.jpg",
+  "images": [
+    "/works/w11_a.jpg",
+    "/works/w11_b.jpg",
+    "/works/w11_c.jpg",
+    "/works/w11_d.jpg",
+    "/works/w11_e.jpg"
+  ],
   "tags": [
-    "武器道具",
-    "仙侠风格"
+    "古风服饰",
+    "布料",
+    "PBR材质"
   ],
   "software": [
-    "Maya",
+    "ZBrush",
+    "Marvelous Designer",
     "Substance Painter",
-    "Marmoset"
+    "Marmoset Toolbag"
   ],
   "work_date": "2024",
-  "pinned": false,
-  "sort_order": 85,
-  "size_weight": 1
+  "pinned": true,
+  "sort_order": 105,
+  "size_weight": 1.5
 }

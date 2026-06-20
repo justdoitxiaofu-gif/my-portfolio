@@ -1,20 +1,24 @@
 {
   "id": "work-05",
-  "title": "次世代军事角色",
-  "description": "次世代军事风格全身角色，完整展示高模、低模、贴图制作流程。",
-  "image": "/works/page_20.jpg",
+  "title": "镇墓兽 · 写实生物雕刻",
+  "description": "Realistic Biological Sculpture\n\n本作品聚焦于对造型与结构的深入刻画，力求在形体塑造与层次梳理之间达到高度统一。尝试将兽形面部特征与传统镇墓兽的神秘造型进行融合，注重通过清晰的体块关系和富有张力的轮廓线构建整体视觉冲击力。结合贴图阶段对金属与非金属材质的细致区分，实现真实且富有层次的表现。",
+  "image": "/works/w01_a.jpg",
+  "images": [
+    "/works/w01_a.jpg",
+    "/works/w01_b.jpg"
+  ],
   "tags": [
-    "次世代角色",
-    "写实"
+    "写实雕刻",
+    "生物",
+    "传统题材"
   ],
   "software": [
     "ZBrush",
-    "Maya",
     "Substance Painter",
-    "Marmoset"
+    "Marmoset Toolbag"
   ],
   "work_date": "2024",
   "pinned": true,
-  "sort_order": 80,
-  "size_weight": 1.5
+  "sort_order": 100,
+  "size_weight": 1.0
 }

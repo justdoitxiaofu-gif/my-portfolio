@@ -1,18 +1,21 @@
 {
   "id": "work-10",
-  "title": "个人作品集 · 更多展示",
-  "description": "更多角色、道具与材质作品合集。",
-  "image": "/works/page_09.jpg",
+  "title": "幻想蜥蜴生物",
+  "description": "Fantasy Lizard Creature\n\n幻想题材的生物雕刻练习，注重生物形态结构与皮肤褶皱质感的塑造，多角度展示造型张力与头部细节刻画。",
+  "image": "/works/w04_a.jpg",
+  "images": [
+    "/works/w04_a.jpg"
+  ],
   "tags": [
-    "作品集"
+    "写实雕刻",
+    "幻想生物"
   ],
   "software": [
     "ZBrush",
-    "Maya",
     "Substance Painter"
   ],
   "work_date": "2024",
   "pinned": false,
-  "sort_order": 60,
-  "size_weight": 1
+  "sort_order": 75,
+  "size_weight": 0.7
 }

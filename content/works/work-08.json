@@ -1,19 +1,24 @@
 {
   "id": "work-08",
-  "title": "英雄无敌:上古纪元 · 蛇鲨科技",
-  "description": "蛇鲨科技（育碧）《英雄无敌:上古纪元》项目角色制作。",
-  "image": "/works/page_02.jpg",
+  "title": "UE 角色集成 · 异步流程协作",
+  "description": "Asynchronous Process Collaboration & UE Character Integration\n\n探索了将角色模型由静态资产转化为可驱动动画角色的完整流程：利用 Mixamo 进行骨架绑定，在 UE 中完成骨骼重定向至标准骨架。将角色嵌入 UE 标准第三人称模版，完成对默认 Player 的替换，并进行基础动作驱动测试与 STT_Attack 蓝图搭建，验证角色在游戏引擎中的行为表现力。",
+  "image": "/works/w08_b.jpg",
+  "images": [
+    "/works/w08_a.jpg",
+    "/works/w08_b.jpg"
+  ],
   "tags": [
-    "项目经历",
-    "角色"
+    "UE集成",
+    "角色绑定",
+    "蓝图"
   ],
   "software": [
-    "Maya",
-    "ZBrush",
-    "Substance Painter"
+    "Unreal Engine 5",
+    "Mixamo",
+    "Maya"
   ],
   "work_date": "2024",
   "pinned": false,
-  "sort_order": 70,
-  "size_weight": 1
+  "sort_order": 85,
+  "size_weight": 1.0
 }

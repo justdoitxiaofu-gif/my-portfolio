@@ -1,18 +1,21 @@
 {
   "id": "work-09",
-  "title": "镇墓兽 · 贴图展示",
-  "description": "镇墓兽完整贴图流程与材质球展示。",
-  "image": "/works/page_07.jpg",
+  "title": "UE 实时场景 · 林间废墟的沉寂时刻",
+  "description": "UE Real-time Scene: The Silent Moment of the Ruins in the Forest\n\n本场景以废弃木屋与林地自然杂草为主题，尝试通过植被密度、地表细节控制、风蚀道具设计与光影渲染，表现出空间的时间感与静谧氛围。场景使用 UE 制作，主要模型与材质为整合资产包，重在模拟真实项目中的环境构建流程与氛围表现节奏把控。\n\nUE5 | Lumen | Nanite 兼容资产 | 动态植被分布 | 体积光 | 叙事环境构建",
+  "image": "/works/w09_a.jpg",
+  "images": [
+    "/works/w09_a.jpg"
+  ],
   "tags": [
-    "写实雕刻",
-    "材质"
+    "UE场景",
+    "环境",
+    "Lumen"
   ],
   "software": [
-    "Substance Painter",
-    "Marmoset"
+    "Unreal Engine 5"
   ],
   "work_date": "2024",
   "pinned": false,
-  "sort_order": 65,
-  "size_weight": 1
+  "sort_order": 80,
+  "size_weight": 1.0
 }

@@ -1,0 +1,21 @@
+{
+  "id": "work-12",
+  "title": "MD 布料结算练习",
+  "description": "Marvelous Designer Cloth Simulation Practice\n\n以次世代军事角色服装为题的 Marvelous Designer 布料结算练习，完成服装版片设计、布料模拟与多角度结算展示，强化对褶皱走向与布料动态的控制能力。",
+  "image": "/works/w05_a.jpg",
+  "images": [
+    "/works/w05_a.jpg"
+  ],
+  "tags": [
+    "布料模拟",
+    "服装"
+  ],
+  "software": [
+    "Marvelous Designer",
+    "ZBrush"
+  ],
+  "work_date": "2024",
+  "pinned": false,
+  "sort_order": 65,
+  "size_weight": 0.7
+}

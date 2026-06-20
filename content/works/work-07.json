@@ -1,19 +1,24 @@
 {
   "id": "work-07",
-  "title": "和平精英 · BOSS套装",
-  "description": "腾讯光子工作室《和平精英》BOSS套装角色建模。",
-  "image": "/works/page_03.jpg",
+  "title": "雨蛙 · 写实生物雕刻",
+  "description": "Realistic Biological Sculpture\n\n本作品旨在还原雨蛙类生物独有的通透皮肤质感，重点运用了 Blender 中的 SSS（次表面散射）渲染技术，以增强其生物特性与视觉真实感。完整展示多角度成品渲染、高模布线与设计参考。",
+  "image": "/works/w02_a.jpg",
+  "images": [
+    "/works/w02_a.jpg",
+    "/works/w02_b.jpg"
+  ],
   "tags": [
-    "项目经历",
-    "角色"
+    "写实雕刻",
+    "生物",
+    "SSS材质"
   ],
   "software": [
-    "Maya",
     "ZBrush",
+    "Blender",
     "Substance Painter"
   ],
   "work_date": "2024",
   "pinned": false,
-  "sort_order": 75,
-  "size_weight": 1.2
+  "sort_order": 90,
+  "size_weight": 1.0
 }

@@ -15,6 +15,7 @@ export interface Work {
   updated_at: string;
   image_count?: number;
   total_size?: number;
+  images?: string[];
 }
 
 export interface WorkImage {

@@ -1,19 +1,24 @@
 {
   "id": "work-01",
-  "title": "镇墓兽 · 写实生物雕刻",
-  "description": "传统文化与写实生物雕刻结合，高精度ZBrush雕刻作品，完整展示高模细节与贴图表现。",
-  "image": "/works/page_06.jpg",
+  "title": "唐三彩兽形佛塔刹",
+  "description": "Tang Sancai Glazed Beast-shaped Finial of a Buddhist Pagoda\n\n传统文物题材的高精度复刻。还原唐三彩低温铅釉陶器特有的黄、绿、白多彩釉色流淌交融的艺术效果，注重兽形造型的张力与釉面质感的真实还原。完整呈现高模雕刻、釉色绘制与多角度展示。",
+  "image": "/works/w03_a.jpg",
+  "images": [
+    "/works/w03_a.jpg",
+    "/works/w03_b.jpg"
+  ],
   "tags": [
+    "传统文物",
     "写实雕刻",
-    "生物"
+    "釉色材质"
   ],
   "software": [
     "ZBrush",
     "Substance Painter",
-    "Marmoset"
+    "Marmoset Toolbag"
   ],
-  "work_date": "2024",
+  "work_date": "2023",
   "pinned": true,
-  "sort_order": 100,
+  "sort_order": 120,
   "size_weight": 1.5
 }
