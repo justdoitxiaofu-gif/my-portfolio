@@ -388,7 +388,7 @@ body.home-vignette::after {
   display: flex;
   width: max-content;
   will-change: transform;
-  animation: marquee 12s linear infinite;
+  animation: marquee 42s linear infinite;
 }
 
 .marquee-segment {
@@ -402,7 +402,7 @@ body.home-vignette::after {
 
 @media (min-width: 768px) {
   .marquee-track {
-    animation-duration: 16s;
+    animation-duration: 56s;
   }
 }
 
